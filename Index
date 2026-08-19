@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GymTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  /* =========================================================
+     GYMTRACK — design tokens
+     ========================================================= */
+  :root{
+    --void:#0A0A0E;
+    --surface:#151220;
+    --surface-2:#1E1930;
+    --surface-3:#282039;
+    --border:rgba(255,255,255,.08);
+    --amethyst:#8B5CF6;
+    --amethyst-dim:#5B3FA0;
+    --ultraviolet:#C084FC;
+    --mist:#B4AFC4;
+    --mist-dim:#6E687F;
+    --gold:#F0B429;
+    --danger:#F2607A;
+    --grad: linear-gradient(135deg, #8B5CF6 0%, #C084FC 100%);
+    --radius: 18px;
+    --radius-sm: 12px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; padding:0; background:var(--void); color:#fff;}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    min-height:100dvh;
+    display:flex; justify-content:center;
+    background:
+      radial-gradient(circle at 15% 0%, rgba(139,92,246,.22), transparent 45%),
+      radial-gradient(circle at 90% 15%, rgba(192,132,252,.12), transparent 40%),
+      var(--void);
+  }
+  #app{width:100%; max-width:480px; min-height:100dvh; position:relative; display:flex; flex-direction:column;}
+  .hidden{display:none !important;}
+  h1,h2,h3{margin:0; font-family:'Inter',sans-serif;}
+  .display{font-family:'Bebas Neue',sans-serif; letter-spacing:.03em;}
+  .mono{font-family:'JetBrains Mono',monospace;}
+  button{font-family:inherit; cursor:pointer;}
+  input{font-family:inherit;}
+
+  /* ---------- scrollbar tidy ---------- */
+  ::-webkit-scrollbar{width:0; height:0;}
+
+  /* ---------- AUTH VIEW ---------- */
+  #view-auth{
+    flex:1; display:flex; flex-direction:column; justify-content:center;
+    padding:32px 28px calc(32px + var(--safe-bottom));
+  }
+  .wordmark{
+    font-size:52px; line-height:.9; text-align:left;
+    background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .wordmark span{color:var(--mist); -webkit-text-fill-color:var(--mist);}
+  .tagline{color:var(--mist); font-size:14.5px; margin-top:8px; margin-bottom:36px; line-height:1.5;}
+  .authtabs{display:flex; gap:4px; background:var(--surface); padding:4px; border-radius:14px; margin-bottom:22px; border:1px solid var(--border);}
+  .authtabs button{flex:1; padding:10px; border:none; border-radius:10px; background:transparent; color:var(--mist); font-weight:600; font-size:14px;}
+  .authtabs button.active{background:var(--amethyst); color:#fff;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12.5px; color:var(--mist); margin-bottom:6px; font-weight:600; letter-spacing:.02em;}
+  .field input{
+    width:100%; padding:14px 16px; border-radius:var(--radius-sm);
+    background:var(--surface); border:1px solid var(--border); color:#fff; font-size:15px;
+  }
+  .field input:focus{outline:2px solid var(--amethyst); outline-offset:1px; border-color:var(--amethyst);}
+  .btn-primary{
+    width:100%; padding:15px; border:none; border-radius:var(--radius-sm);
+    background:var(--grad); color:#fff; font-weight:700; font-size:15px; margin-top:6px;
+    box-shadow:0 8px 24px -8px rgba(139,92,246,.6);
+  }
+  .btn-primary:active{transform:scale(.98);}
+  .btn-primary:disabled{opacity:.5;}
+  .authmsg{font-size:13px; color:var(--danger); margin-top:10px; min-height:16px;}
+  .authmsg.ok{color:var(--gold);}
+  .config-warning{
+    background:rgba(242,96,122,.12); border:1px solid rgba(242,96,122,.4);
+    color:#ffb3c1; padding:12px 14px; border-radius:12px; font-size:12.5px; margin-bottom:20px; line-height:1.5;
+  }
+
+  /* ---------- MAIN SHELL ---------- */
+  #view-main{flex:1; display:flex; flex-direction:column; min-height:100dvh;}
+  .topbar{
+    padding:calc(18px + var(--safe-top)) 20px 16px; display:flex; align-items:center; justify-content:space-between;
+    position:sticky; top:0; z-index:5; background:rgba(10,10,14,.85); backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .topbar .logo{font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:.04em;}
+  .topbar .logo span{color:var(--ultraviolet);}
+  .topbar .date{font-size:12px; color:var(--mist);}
+  #content{flex:1; padding:18px 18px calc(100px + var(--safe-bottom));}
+  .bottomnav{
+    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
+    width:100%; max-width:480px; display:flex;
+    background:rgba(21,18,32,.92); backdrop-filter:blur(14px);
+    border-top:1px solid var(--border); padding:10px 10px calc(10px + var(--safe-bottom)); z-index:10;
+  }
+  .bottomnav button{
+    flex:1; background:none; border:none; color:var(--mist-dim); display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:6px; font-size:11px; font-weight:600; border-radius:12px;
+  }
+  .bottomnav button.active{color:var(--ultraviolet);}
+  .bottomnav svg{width:22px; height:22px;}
+
+  /* ---------- shared components ---------- */
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px;}
+  .section-title{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--mist-dim); font-weight:700; margin:22px 0 10px; padding-left:2px;}
+  .section-title:first-child{margin-top:0;}
+  .cta-big{
+    width:100%; padding:22px; border:none; border-radius:20px; background:var(--grad); color:#fff;
+    text-align:left; box-shadow:0 12px 32px -10px rgba(139,92,246,.55); position:relative; overflow:hidden;
+  }
+  .cta-big .label{font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:.03em; display:block;}
+  .cta-big .sub{font-size:13px; opacity:.9; margin-top:4px; display:block;}
+  .stat-row{display:flex; gap:10px; margin-top:14px;}
+  .stat{flex:1; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px;}
+  .stat .num{font-family:'Bebas Neue',sans-serif; font-size:28px; color:var(--ultraviolet);}
+  .stat .lbl{font-size:11px; color:var(--mist); margin-top:2px;}
+
+  .active-workout-card{border:1px solid var(--amethyst-dim); background:linear-gradient(180deg, rgba(139,92,246,.14), var(--surface) 60%);}
+  .active-workout-card .name{font-family:'Bebas Neue',sans-serif; font-size:24px; letter-spacing:.02em;}
+  .active-workout-card .timer{font-size:12px; color:var(--mist); margin-top:2px;}
+  .ex-row{
+    display:flex; align-items:center; justify-content:space-between; padding:14px; background:var(--surface-2);
+    border-radius:14px; margin-top:10px; border:1px solid var(--border);
+  }
+  .ex-row .exname{font-weight:700; font-size:14.5px;}
+  .ex-row .exmeta{font-size:12px; color:var(--mist); margin-top:2px;}
+  .ex-row .chev{color:var(--mist-dim);}
+  .btn-outline{
+    width:100%; padding:14px; border-radius:14px; border:1.5px dashed var(--amethyst-dim); background:transparent;
+    color:var(--ultraviolet); font-weight:700; font-size:14px; margin-top:14px;
+  }
+  .btn-finish{
+    width:100%; padding:15px; border-radius:14px; border:none; background:var(--surface-3); color:#fff;
+    font-weight:700; font-size:14px; margin-top:22px; border:1px solid var(--border);
+  }
+  .btn-finish.primary{background:var(--grad); border:none;}
+
+  /* exercise picker */
+  .search-box{
+    width:100%; padding:13px 16px; border-radius:14px; background:var(--surface); border:1px solid var(--border);
+    color:#fff; font-size:14.5px; margin-bottom:6px;
+  }
+  .muscle-group{font-size:11px; color:var(--mist-dim); text-transform:uppercase; letter-spacing:.08em; font-weight:700; margin:18px 0 8px;}
+  .pick-row{
+    display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:var(--surface);
+    border-radius:14px; margin-bottom:8px; border:1px solid var(--border);
+  }
+  .pick-row span{font-size:14.5px; font-weight:600;}
+  .pick-row button{background:var(--amethyst); border:none; color:#fff; width:30px; height:30px; border-radius:9px; font-size:18px; line-height:1;}
+
+  /* log sets screen */
+  .ghost-row{
+    display:flex; align-items:center; gap:10px; padding:12px 14px; border-radius:12px;
+    border:1px dashed var(--border); color:var(--mist-dim); font-size:13px; margin-bottom:14px;
+  }
+  .ghost-row b{color:var(--mist); font-family:'JetBrains Mono',monospace;}
+  .set-input-row{display:flex; gap:10px; align-items:flex-end; margin-bottom:12px;}
+  .set-input-row .field{flex:1; margin-bottom:0;}
+  .set-input-row input{text-align:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:17px; padding:13px 8px;}
+  .add-set-btn{
+    width:52px; height:50px; border-radius:14px; border:none; background:var(--grad); color:#fff; font-size:22px; flex-shrink:0;
+  }
+  .logged-set{
+    display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:var(--surface-2);
+    border-radius:12px; margin-bottom:8px; border:1px solid var(--border);
+  }
+  .logged-set .idx{width:24px; height:24px; border-radius:8px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:var(--mist);}
+  .logged-set .vals{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:15px; flex:1; padding-left:12px;}
+  .pr-badge{background:var(--gold); color:#241a02; font-size:10px; font-weight:800; padding:3px 7px; border-radius:7px; letter-spacing:.03em;}
+
+  /* history */
+  .hist-card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:12px;}
+  .hist-head{display:flex; justify-content:space-between; align-items:center; cursor:pointer;}
+  .hist-head .hname{font-weight:700; font-size:15px;}
+  .hist-head .hdate{font-size:12px; color:var(--mist); margin-top:2px;}
+  .hist-detail{margin-top:14px; padding-top:14px; border-top:1px solid var(--border); display:none;}
+  .hist-detail.open{display:block;}
+  .hist-ex{margin-bottom:12px;}
+  .hist-ex .exn{font-size:13px; font-weight:700; color:var(--ultraviolet); margin-bottom:6px;}
+  .hist-set-line{font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mist); display:flex; gap:8px;}
+
+  .empty-state{text-align:center; padding:50px 20px; color:var(--mist);}
+  .empty-state svg{width:44px; height:44px; margin-bottom:14px; opacity:.5;}
+  .empty-state p{font-size:13.5px; line-height:1.5;}
+
+  /* profile */
+  .profile-card{display:flex; align-items:center; gap:14px; padding:18px;}
+  .avatar{width:52px; height:52px; border-radius:16px; background:var(--grad); display:flex; align-items:center; justify-content:center; font-family:'Bebas Neue',sans-serif; font-size:22px;}
+  .profile-email{font-weight:700; font-size:14.5px; word-break:break-all;}
+  .profile-sub{font-size:12px; color:var(--mist); margin-top:2px;}
+  .btn-danger{
+    width:100%; padding:14px; border-radius:14px; border:1px solid rgba(242,96,122,.4); background:rgba(242,96,122,.08);
+    color:var(--danger); font-weight:700; font-size:14px; margin-top:18px;
+  }
+
+  /* toast */
+  #toast{
+    position:fixed; bottom:calc(90px + var(--safe-bottom)); left:50%; transform:translateX(-50%) translateY(20px);
+    background:var(--surface-3); border:1px solid var(--border); padding:12px 18px; border-radius:14px; font-size:13.5px;
+    opacity:0; transition:.25s; pointer-events:none; z-index:50; max-width:88%; text-align:center;
+  }
+  #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+
+  .back-row{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+  .back-btn{background:var(--surface); border:1px solid var(--border); color:#fff; width:36px; height:36px; border-radius:11px; display:flex; align-items:center; justify-content:center;}
+  .back-title{font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.02em;}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============== AUTH VIEW ============== -->
+  <div id="view-auth" class="view">
+    <div id="configWarning" class="config-warning hidden">
+      ⚠️ Nincs beállítva a Supabase kapcsolat. Nyisd meg a fájlt szövegszerkesztőben, és a tetején írd be a <b>SUPABASE_URL</b> és <b>SUPABASE_ANON_KEY</b> értékeket (Publishable key vagy legacy anon key — soha ne a secret/service_role kulcsot).
+    </div>
+    <div class="wordmark">GYM<span>TRACK</span></div>
+    <p class="tagline">Naplózd az edzéseidet, kövesd a fejlődésed, verd meg a múltkori magad.</p>
+
+    <div class="authtabs">
+      <button id="tabSignIn" class="active">Bejelentkezés</button>
+      <button id="tabSignUp">Regisztráció</button>
+    </div>
+
+    <div class="field">
+      <label>E-mail cím</label>
+      <input type="email" id="authEmail" placeholder="te@email.hu" autocomplete="email">
+    </div>
+    <div class="field">
+      <label>Jelszó</label>
+      <input type="password" id="authPassword" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-primary" id="authSubmit">Bejelentkezés</button>
+    <div class="authmsg" id="authMsg"></div>
+  </div>
+
+  <!-- ============== MAIN APP ============== -->
+  <div id="view-main" class="view hidden">
+    <div class="topbar">
+      <div class="logo">GYM<span>TRACK</span></div>
+      <div class="date" id="topDate"></div>
+    </div>
+
+    <div id="content"></div>
+
+    <nav class="bottomnav">
+      <button data-view="home" class="navbtn active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5h3v11h-3zM14.5 6.5h3v11h-3zM3 10.5h1.5v3H3zM19.5 10.5H21v3h-1.5z"/></svg>
+        Edzés
+      </button>
+      <button data-view="history" class="navbtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        Előzmények
+      </button>
+      <button data-view="profile" class="navbtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
+        Profil
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+/* =========================================================
+   CONFIG — ide másold a saját Supabase adataidat
+   FONTOS: csak a PUBLISHABLE (sb_publishable_...) vagy a
+   legacy ANON/PUBLIC kulcsot használd itt. A secret /
+   service_role kulcs SOHA nem kerülhet frontend kódba.
+   ========================================================= */
+const SUPABASE_URL = "MASOLD_IDE_A_PROJECT_URL_T"; // pl. https://xxxxxxx.supabase.co
+const SUPABASE_ANON_KEY = "MASOLD_IDE_A_PUBLISHABLE_VAGY_ANON_KULCSOT";
+
+const CONFIGURED = SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY.length > 20;
+let sb = null;
+if (CONFIGURED) {
+  sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} else {
+  document.getElementById('configWarning').classList.remove('hidden');
+}
+
+/* ---------- state ---------- */
+let state = {
+  session: null,
+  exercises: [],
+  activeWorkoutId: localStorage.getItem('gt_active_workout') || null,
+  activeWorkoutStarted: localStorage.getItem('gt_active_started') || null,
+  currentExercise: null, // exercise object currently being logged
+};
+
+/* ---------- helpers ---------- */
+const $ = (s, el=document) => el.querySelector(s);
+const $$ = (s, el=document) => [...el.querySelectorAll(s)];
+
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+function fmtDate(iso){
+  const d = new Date(iso);
+  return d.toLocaleDateString('hu-HU', {month:'short', day:'numeric'}) + ' · ' +
+         d.toLocaleTimeString('hu-HU', {hour:'2-digit', minute:'2-digit'});
+}
+function todayLabel(){
+  return new Date().toLocaleDateString('hu-HU', {weekday:'long', month:'long', day:'numeric'});
+}
+
+/* =========================================================
+   AUTH
+   ========================================================= */
+let authMode = 'signin';
+$('#tabSignIn').onclick = () => { authMode='signin'; $('#tabSignIn').classList.add('active'); $('#tabSignUp').classList.remove('active'); $('#authSubmit').textContent='Bejelentkezés'; $('#authMsg').textContent=''; };
+$('#tabSignUp').onclick = () => { authMode='signup'; $('#tabSignUp').classList.add('active'); $('#tabSignIn').classList.remove('active'); $('#authSubmit').textContent='Fiók létrehozása'; $('#authMsg').textContent=''; };
+
+$('#authSubmit').onclick = async () => {
+  if (!CONFIGURED) { toast('Előbb állítsd be a Supabase kulcsokat a fájl tetején.'); return; }
+  const email = $('#authEmail').value.trim();
+  const password = $('#authPassword').value;
+  const msg = $('#authMsg');
+  msg.className = 'authmsg'; msg.textContent = '';
+  if (!email || !password) { msg.textContent = 'Add meg az e-mail címet és a jelszót.'; return; }
+
+  $('#authSubmit').disabled = true;
+  try {
+    if (authMode === 'signup') {
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error) throw error;
+      if (data.session) {
+        // e-mail megerősítés kikapcsolva a projektben -> rögtön be van jelentkezve
+      } else {
+        msg.classList.add('ok');
+        msg.textContent = 'Sikeres regisztráció! Ellenőrizd az e-mail fiókodat a megerősítéshez, majd jelentkezz be.';
+      }
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+    }
+  } catch (e) {
+    msg.textContent = translateAuthError(e.message);
+  }
+  $('#authSubmit').disabled = false;
+};
+
+function translateAuthError(m){
+  if (/Invalid login credentials/i.test(m)) return 'Hibás e-mail cím vagy jelszó.';
+  if (/already registered/i.test(m)) return 'Ez az e-mail cím már regisztrálva van.';
+  if (/Password should be/i.test(m)) return 'A jelszónak legalább 6 karakternek kell lennie.';
+  return m;
+}
+
+if (CONFIGURED) {
+  sb.auth.onAuthStateChange((event, session) => {
+    state.session = session;
+    if (session) { enterApp(); } else { showAuth(); }
+  });
+}
+
+function showAuth(){
+  $('#view-auth').classList.remove('hidden');
+  $('#view-main').classList.add('hidden');
+}
+
+async function enterApp(){
+  $('#view-auth').classList.add('hidden');
+  $('#view-main').classList.remove('hidden');
+  $('#topDate').textContent = todayLabel();
+  await loadExercises();
+  switchView('home');
+}
+
+/* =========================================================
+   NAVIGATION
+   ========================================================= */
+$$('.navbtn').forEach(btn => {
+  btn.onclick = () => switchView(btn.dataset.view);
+});
+
+function switchView(view){
+  $$('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
+  if (view === 'home') renderHome();
+  if (view === 'history') renderHistory();
+  if (view === 'profile') renderProfile();
+}
+
+/* =========================================================
+   EXERCISES
+   ========================================================= */
+async function loadExercises(){
+  const { data, error } = await sb.from('exercises').select('*').order('muscle_group').order('name');
+  if (error) { toast('Hiba a gyakorlatok betöltésekor.'); return; }
+  state.exercises = data || [];
+}
+
+function exerciseName(id){
+  const e = state.exercises.find(x => x.id === id);
+  return e ? e.name : 'Gyakorlat';
+}
+
+/* =========================================================
+   HOME / ACTIVE WORKOUT
+   ========================================================= */
+async function renderHome(){
+  const content = $('#content');
+  content.innerHTML = `<div id="homeBody">Betöltés…</div>`;
+
+  if (!state.activeWorkoutId) {
+    const stats = await getWeekStats();
+    content.innerHTML = `
+      <button class="cta-big" id="startWorkoutBtn">
+        <span class="label">Új edzés indítása</span>
+        <span class="sub">Kezdd el naplózni a mai szetteket</span>
+      </button>
+      <div class="stat-row">
+        <div class="stat"><div class="num">${stats.count}</div><div class="lbl">Edzés ezen a héten</div></div>
+        <div class="stat"><div class="num">${stats.volume}</div><div class="lbl">kg összterhelés</div></div>
+      </div>
+      <div class="section-title">Gyors hozzáférés</div>
+      <div class="card" style="color:var(--mist); font-size:13.5px; line-height:1.6;">
+        Indíts egy edzést, válassz gyakorlatot, és rögtön látod majd, hogyan ment legutóbb — hogy tudd, mit kell megvernie a mai szettednek.
+      </div>
+    `;
+    $('#startWorkoutBtn').onclick = startWorkout;
+  } else {
+    await renderActiveWorkout();
+  }
+}
+
+async function getWeekStats(){
+  const weekAgo = new Date(); weekAgo.setDate(weekAgo.getDate()-7);
+  const { data: workouts } = await sb.from('workouts').select('id').eq('user_id', state.session.user.id).gte('started_at', weekAgo.toISOString());
+  const ids = (workouts||[]).map(w=>w.id);
+  let volume = 0;
+  if (ids.length) {
+    const { data: sets } = await sb.from('workout_sets').select('weight,reps').in('workout_id', ids);
+    volume = (sets||[]).reduce((s,x)=> s + (x.weight*x.reps), 0);
+  }
+  return { count: ids.length, volume: Math.round(volume).toLocaleString('hu-HU') };
+}
+
+async function startWorkout(){
+  const { data, error } = await sb.from('workouts').insert({
+    user_id: state.session.user.id,
+    name: 'Edzés — ' + new Date().toLocaleDateString('hu-HU', {month:'short', day:'numeric'}),
+    started_at: new Date().toISOString()
+  }).select().single();
+  if (error) { toast('Nem sikerült elindítani az edzést.'); return; }
+  state.activeWorkoutId = data.id;
+  state.activeWorkoutStarted = data.started_at;
+  localStorage.setItem('gt_active_workout', data.id);
+  localStorage.setItem('gt_active_started', data.started_at);
+  renderHome();
+}
+
+async function renderActiveWorkout(){
+  const content = $('#content');
+  const { data: sets } = await sb.from('workout_sets').select('*').eq('workout_id', state.activeWorkoutId).order('created_at');
+  const byExercise = {};
+  (sets||[]).forEach(s => { (byExercise[s.exercise_id] ||= []).push(s); });
+  const exIds = Object.keys(byExercise);
+
+  content.innerHTML = `
+    <div class="card active-workout-card">
+      <div class="name">Aktív edzés</div>
+      <div class="timer">Elindítva: ${fmtDate(state.activeWorkoutStarted)}</div>
+    </div>
+    <div id="activeExList"></div>
+    <button class="btn-outline" id="addExBtn">+ Gyakorlat hozzáadása</button>
+    <button class="btn-finish primary" id="finishBtn">Edzés befejezése</button>
+  `;
+
+  const list = $('#activeExList');
+  if (!exIds.length) {
+    list.innerHTML = `<div class="empty-state"><p>Még nincs hozzáadva gyakorlat.<br>Kattints a lenti gombra a kezdéshez.</p></div>`;
+  } else {
+    exIds.forEach(id => {
+      const rows = byExercise[id];
+      const row = document.createElement('div');
+      row.className = 'ex-row';
+      row.innerHTML = `
+        <div>
+          <div class="exname">${exerciseName(id)}</div>
+          <div class="exmeta">${rows.length} szett rögzítve</div>
+        </div>
+        <div class="chev">›</div>
+      `;
+      row.onclick = () => openLogSets(state.exercises.find(e=>e.id===id));
+      list.appendChild(row);
+    });
+  }
+
+  $('#addExBtn').onclick = openExercisePicker;
+  $('#finishBtn').onclick = finishWorkout;
+}
+
+async function finishWorkout(){
+  if (!confirm('Befejezed a mai edzést?')) return;
+  await sb.from('workouts').update({ finished_at: new Date().toISOString() }).eq('id', state.activeWorkoutId);
+  state.activeWorkoutId = null;
+  state.activeWorkoutStarted = null;
+  localStorage.removeItem('gt_active_workout');
+  localStorage.removeItem('gt_active_started');
+  toast('Edzés mentve 💪');
+  renderHome();
+}
+
+/* =========================================================
+   EXERCISE PICKER
+   ========================================================= */
+function openExercisePicker(){
+  const content = $('#content');
+  const groups = {};
+  state.exercises.forEach(e => { (groups[e.muscle_group] ||= []).push(e); });
+
+  content.innerHTML = `
+    <div class="back-row">
+      <button class="back-btn" id="backBtn">←</button>
+      <div class="back-title">Gyakorlat választása</div>
+    </div>
+    <input class="search-box" id="exSearch" placeholder="Keresés…">
+    <div id="pickList"></div>
+    <button class="btn-outline" id="customExBtn">+ Egyéni gyakorlat hozzáadása</button>
+  `;
+  $('#backBtn').onclick = renderActiveWorkout;
+  $('#customExBtn').onclick = addCustomExercise;
+
+  function renderList(filter=''){
+    const pickList = $('#pickList');
+    pickList.innerHTML = '';
+    const f = filter.trim().toLowerCase();
+    Object.keys(groups).forEach(g => {
+      const items = groups[g].filter(e => e.name.toLowerCase().includes(f));
+      if (!items.length) return;
+      const h = document.createElement('div');
+      h.className = 'muscle-group';
+      h.textContent = g;
+      pickList.appendChild(h);
+      items.forEach(e => {
+        const row = document.createElement('div');
+        row.className = 'pick-row';
+        row.innerHTML = `<span>${e.name}</span><button>+</button>`;
+        row.querySelector('button').onclick = () => openLogSets(e);
+        pickList.appendChild(row);
+      });
+    });
+  }
+  renderList();
+  $('#exSearch').oninput = (e) => renderList(e.target.value);
+}
+
+async function addCustomExercise(){
+  const name = prompt('Gyakorlat neve:');
+  if (!name) return;
+  const group = prompt('Izomcsoport (pl. Mell, Hát, Láb, Váll, Kar, Has):', 'Egyéb') || 'Egyéb';
+  const { data, error } = await sb.from('exercises').insert({
+    user_id: state.session.user.id, name, muscle_group: group
+  }).select().single();
+  if (error) { toast('Nem sikerült hozzáadni.'); return; }
+  state.exercises.push(data);
+  openLogSets(data);
+}
+
+/* =========================================================
+   LOG SETS FOR AN EXERCISE
+   ========================================================= */
+async function openLogSets(exercise){
+  state.currentExercise = exercise;
+  const content = $('#content');
+  content.innerHTML = `
+    <div class="back-row">
+      <button class="back-btn" id="backBtn">←</button>
+      <div class="back-title">${exercise.name}</div>
+    </div>
+    <div id="ghostBox"></div>
+    <div id="setsList"></div>
+    <div class="set-input-row">
+      <div class="field"><label>Súly (kg)</label><input type="number" inputmode="decimal" id="wInput" step="0.5"></div>
+      <div class="field"><label>Ismétlés</label><input type="number" inputmode="numeric" id="rInput"></div>
+      <button class="add-set-btn" id="addSetBtn">+</button>
+    </div>
+  `;
+  $('#backBtn').onclick = renderActiveWorkout;
+
+  const ghost = await getLastPerformance(exercise.id);
+  const ghostBox = $('#ghostBox');
+  if (ghost && ghost.sets.length) {
+    ghostBox.innerHTML = `<div class="ghost-row">👻 Múltkor (${fmtDate(ghost.date)}): <b>${ghost.sets.map(s=>`${s.weight}kg×${s.reps}`).join(', ')}</b></div>`;
+  } else {
+    ghostBox.innerHTML = `<div class="ghost-row">Ez az első alkalom, hogy ezt naplózod — állítsd be a kiindulási szintet!</div>`;
+  }
+
+  await renderCurrentSets(exercise.id, ghost ? Math.max(0, ...ghost.sets.map(s=>s.weight)) : 0);
+
+  $('#addSetBtn').onclick = async () => {
+    const weight = parseFloat($('#wInput').value);
+    const reps = parseInt($('#rInput').value);
+    if (isNaN(weight) || isNaN(reps) || weight < 0 || reps <= 0) { toast('Adj meg érvényes súlyt és ismétlésszámot.'); return; }
+
+    const { data: existing } = await sb.from('workout_sets').select('id').eq('workout_id', state.activeWorkoutId).eq('exercise_id', exercise.id);
+    const setNumber = (existing?.length || 0) + 1;
+
+    const { error } = await sb.from('workout_sets').insert({
+      workout_id: state.activeWorkoutId,
+      exercise_id: exercise.id,
+      user_id: state.session.user.id,
+      set_number: setNumber,
+      weight, reps
+    });
+    if (error) { toast('Nem sikerült menteni a szettet.'); return; }
+    $('#wInput').value = ''; $('#rInput').value = '';
+    const bestBefore = ghost ? Math.max(0, ...ghost.sets.map(s=>s.weight)) : 0;
+    await renderCurrentSets(exercise.id, bestBefore);
+    toast('Szett mentve ✅');
+  };
+}
+
+async function getLastPerformance(exerciseId){
+  const { data: prevSetRow } = await sb.from('workout_sets')
+    .select('workout_id, created_at')
+    .eq('user_id', state.session.user.id)
+    .eq('exercise_id', exerciseId)
+    .neq('workout_id', state.activeWorkoutId)
+    .order('created_at', { ascending: false })
+    .limit(1);
+  if (!prevSetRow || !prevSetRow.length) return null;
+  const wId = prevSetRow[0].workout_id;
+  const { data: sets } = await sb.from('workout_sets').select('weight,reps,set_number')
+    .eq('workout_id', wId).eq('exercise_id', exerciseId).order('set_number');
+  return { date: prevSetRow[0].created_at, sets: sets || [] };
+}
+
+async function renderCurrentSets(exerciseId, prevBest){
+  const { data: sets } = await sb.from('workout_sets').select('*')
+    .eq('workout_id', state.activeWorkoutId).eq('exercise_id', exerciseId).order('set_number');
+  const list = $('#setsList');
+  list.innerHTML = '';
+  (sets||[]).forEach(s => {
+    const row = document.createElement('div');
+    row.className = 'logged-set';
+    const isPR = s.weight > prevBest;
+    row.innerHTML = `
+      <div class="idx">${s.set_number}</div>
+      <div class="vals">${s.weight} kg × ${s.reps}</div>
+      ${isPR ? '<span class="pr-badge">PR</span>' : ''}
+    `;
+    list.appendChild(row);
+  });
+}
+
+/* =========================================================
+   HISTORY
+   ========================================================= */
+async function renderHistory(){
+  const content = $('#content');
+  content.innerHTML = `<div class="section-title">Korábbi edzések</div><div id="histList">Betöltés…</div>`;
+  const { data: workouts, error } = await sb.from('workouts').select('*')
+    .eq('user_id', state.session.user.id)
+    .not('finished_at', 'is', null)
+    .order('started_at', { ascending: false })
+    .limit(50);
+  const listEl = $('#histList');
+  if (error) { listEl.innerHTML = '<p style="color:var(--mist)">Hiba történt a betöltés közben.</p>'; return; }
+  if (!workouts || !workouts.length) {
+    listEl.innerHTML = `<div class="empty-state"><p>Még nincs befejezett edzésed.<br>Indíts egyet az Edzés fülön!</p></div>`;
+    return;
+  }
+  listEl.innerHTML = '';
+  workouts.forEach(w => {
+    const card = document.createElement('div');
+    card.className = 'hist-card';
+    card.innerHTML = `
+      <div class="hist-head">
+        <div>
+          <div class="hname">${w.name}</div>
+          <div class="hdate">${fmtDate(w.started_at)}</div>
+        </div>
+        <div class="chev">›</div>
+      </div>
+      <div class="hist-detail" id="detail-${w.id}"></div>
+    `;
+    card.querySelector('.hist-head').onclick = async () => {
+      const detail = card.querySelector('.hist-detail');
+      const open = detail.classList.contains('open');
+      $$('.hist-detail').forEach(d => d.classList.remove('open'));
+      if (!open) {
+        detail.classList.add('open');
+        if (!detail.dataset.loaded) {
+          await loadWorkoutDetail(w.id, detail);
+          detail.dataset.loaded = '1';
+        }
+      }
+    };
+    listEl.appendChild(card);
+  });
+}
+
+async function loadWorkoutDetail(workoutId, detailEl){
+  detailEl.innerHTML = 'Betöltés…';
+  const { data: sets } = await sb.from('workout_sets').select('*').eq('workout_id', workoutId).order('set_number');
+  if (!sets || !sets.length) { detailEl.innerHTML = '<p style="color:var(--mist); font-size:13px;">Nincs rögzített szett.</p>'; return; }
+  const byExercise = {};
+  sets.forEach(s => { (byExercise[s.exercise_id] ||= []).push(s); });
+  detailEl.innerHTML = '';
+  Object.keys(byExercise).forEach(exId => {
+    const block = document.createElement('div');
+    block.className = 'hist-ex';
+    const lines = byExercise[exId].map(s => `<div class="hist-set-line"><span>Szett ${s.set_number}</span><span>${s.weight} kg × ${s.reps}</span></div>`).join('');
+    block.innerHTML = `<div class="exn">${exerciseName(exId)}</div>${lines}`;
+    detailEl.appendChild(block);
+  });
+}
+
+/* =========================================================
+   PROFILE
+   ========================================================= */
+function renderProfile(){
+  const content = $('#content');
+  const email = state.session?.user?.email || '';
+  content.innerHTML = `
+    <div class="card profile-card">
+      <div class="avatar">${email.charAt(0).toUpperCase()}</div>
+      <div>
+        <div class="profile-email">${email}</div>
+        <div class="profile-sub">GymTrack tag</div>
+      </div>
+    </div>
+    <button class="btn-danger" id="signOutBtn">Kijelentkezés</button>
+  `;
+  $('#signOutBtn').onclick = async () => {
+    await sb.auth.signOut();
+    localStorage.removeItem('gt_active_workout');
+    localStorage.removeItem('gt_active_started');
+    state.activeWorkoutId = null;
+  };
+}
+
+/* ---------- init: restore session if configured ---------- */
+if (CONFIGURED) {
+  sb.auth.getSession().then(({ data }) => {
+    state.session = data.session;
+    if (data.session) enterApp(); else showAuth();
+  });
+} else {
+  showAuth();
+}
+</script>
+</body>
+</html>
