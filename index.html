@@ -280,8 +280,8 @@
    legacy ANON/PUBLIC kulcsot használd itt. A secret /
    service_role kulcs SOHA nem kerülhet frontend kódba.
    ========================================================= */
-const SUPABASE_URL = https://yhovylehsmwcdeianhzx.supabase.co; // pl. https://xxxxxxx.supabase.co
-const SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlob3Z5bGVoc213Y2RlaWFuaHp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNTc2OTgsImV4cCI6MjEwMjczMzY5OH0.U_RWRAFbIHDM2yEY-nLH5KTMjnBqrfadNNLl42UcQRw;
+const SUPABASE_URL = "https://yhovylehsmwcdeianhzx.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlob3Z5bGVoc213Y2RlaWFuaHp4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcxNTc2OTgsImV4cCI6MjEwMjczMzY5OH0.U_RWRAFbIHDM2yEY-nLH5KTMjnBqrfadNNLl42UcQRw";
 
 const CONFIGURED = SUPABASE_URL.startsWith("https://") && SUPABASE_ANON_KEY.length > 20;
 let sb = null;
