@@ -3,19 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A0A0E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>GymTrack</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <style>
   :root{
     --void:#0A0A0E; --surface:#151220; --surface-2:#1E1930; --surface-3:#282039;
     --border:rgba(255,255,255,.08);
     --amethyst:#8B5CF6; --amethyst-dim:#5B3FA0; --ultraviolet:#C084FC;
-    --mist:#B4AFC4; --mist-dim:#6E687F; --gold:#F0B429; --danger:#F2607A;
+    --mist:#B4AFC4; --mist-dim:#6E687F; --gold:#F0B429; --danger:#F2607A; --green:#34D399;
     --grad: linear-gradient(135deg, #8B5CF6 0%, #C084FC 100%);
-    --radius:18px; --radius-sm:12px;
+    --radius:18px; --radius-sm:14px;
     --safe-bottom: env(safe-area-inset-bottom, 0px); --safe-top: env(safe-area-inset-top, 0px);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
@@ -24,50 +26,56 @@
     font-family:'Inter',system-ui,sans-serif; min-height:100dvh; display:flex; justify-content:center;
     background: radial-gradient(circle at 15% 0%, rgba(139,92,246,.22), transparent 45%),
                 radial-gradient(circle at 90% 15%, rgba(192,132,252,.12), transparent 40%), var(--void);
+    -webkit-text-size-adjust:100%;
   }
-  #app{width:100%; max-width:480px; min-height:100dvh; position:relative; display:flex; flex-direction:column;}
+  #app{width:100%; max-width:428px; min-height:100dvh; position:relative; display:flex; flex-direction:column;}
   .hidden{display:none !important;}
   h1,h2,h3{margin:0;}
   .display{font-family:'Bebas Neue',sans-serif; letter-spacing:.03em;}
   .mono{font-family:'JetBrains Mono',monospace;}
   button{font-family:inherit; cursor:pointer;}
   input,textarea,select{font-family:inherit;}
+  /* iOS zoom-fix: minden beviteli mezőnek >=16px kell, különben Safari ráugrik a mezőre fókuszáláskor */
+  input,textarea,select{font-size:16px;}
   ::-webkit-scrollbar{width:0; height:0;}
 
   /* ---------- AUTH ---------- */
-  #view-auth{flex:1; display:flex; flex-direction:column; justify-content:center; padding:32px 28px calc(32px + var(--safe-bottom));}
-  .wordmark{font-size:52px; line-height:.9; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  #view-auth{flex:1; display:flex; flex-direction:column; justify-content:center; padding:32px 26px calc(32px + var(--safe-bottom));}
+  .wordmark{font-size:50px; line-height:.9; background:var(--grad); -webkit-background-clip:text; background-clip:text; color:transparent;}
   .wordmark span{color:var(--mist); -webkit-text-fill-color:var(--mist);}
-  .tagline{color:var(--mist); font-size:14.5px; margin:8px 0 36px; line-height:1.5;}
+  .tagline{color:var(--mist); font-size:14.5px; margin:8px 0 34px; line-height:1.5;}
   .authtabs{display:flex; gap:4px; background:var(--surface); padding:4px; border-radius:14px; margin-bottom:22px; border:1px solid var(--border);}
-  .authtabs button{flex:1; padding:10px; border:none; border-radius:10px; background:transparent; color:var(--mist); font-weight:600; font-size:14px;}
+  .authtabs button{flex:1; padding:11px; border:none; border-radius:10px; background:transparent; color:var(--mist); font-weight:600; font-size:14.5px;}
   .authtabs button.active{background:var(--amethyst); color:#fff;}
   .field{margin-bottom:14px;}
   .field label{display:block; font-size:12.5px; color:var(--mist); margin-bottom:6px; font-weight:600; letter-spacing:.02em;}
-  .field input, .field textarea, .field select{width:100%; padding:14px 16px; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border); color:#fff; font-size:15px;}
+  .field input, .field textarea, .field select{width:100%; padding:14px 16px; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border); color:#fff;}
   .field textarea{resize:vertical; min-height:60px;}
   .field input:focus, .field textarea:focus, .field select:focus{outline:2px solid var(--amethyst); outline-offset:1px; border-color:var(--amethyst);}
-  .btn-primary{width:100%; padding:15px; border:none; border-radius:var(--radius-sm); background:var(--grad); color:#fff; font-weight:700; font-size:15px; margin-top:6px; box-shadow:0 8px 24px -8px rgba(139,92,246,.6);}
+  .btn-primary{width:100%; padding:16px; border:none; border-radius:var(--radius-sm); background:var(--grad); color:#fff; font-weight:700; font-size:15.5px; margin-top:6px; box-shadow:0 8px 24px -8px rgba(139,92,246,.6); min-height:50px;}
   .btn-primary:active{transform:scale(.98);}
   .btn-primary:disabled{opacity:.5;}
-  .authmsg{font-size:13px; color:var(--danger); margin-top:10px; min-height:16px;}
+  .authmsg{font-size:13px; color:var(--danger); margin-top:10px; min-height:16px; line-height:1.4;}
   .authmsg.ok{color:var(--gold);}
   .config-warning{background:rgba(242,96,122,.12); border:1px solid rgba(242,96,122,.4); color:#ffb3c1; padding:12px 14px; border-radius:12px; font-size:12.5px; margin-bottom:20px; line-height:1.5;}
 
   /* ---------- SHELL ---------- */
   #view-main{flex:1; display:flex; flex-direction:column; min-height:100dvh;}
-  .topbar{padding:calc(16px + var(--safe-top)) 20px 14px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:5; background:rgba(10,10,14,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--border);}
-  .topbar .logo{font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.04em;}
+  .topbar{padding:calc(14px + var(--safe-top)) 18px 14px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:5; background:rgba(10,10,14,.85); backdrop-filter:blur(10px); border-bottom:1px solid var(--border);}
+  .topbar .logo{font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:.04em;}
   .topbar .logo span{color:var(--ultraviolet);}
-  .topbar .date{font-size:11.5px; color:var(--mist);}
-  #content{flex:1; padding:18px 18px calc(96px + var(--safe-bottom));}
-  .bottomnav{position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:480px; display:flex; background:rgba(21,18,32,.92); backdrop-filter:blur(14px); border-top:1px solid var(--border); padding:8px 6px calc(8px + var(--safe-bottom)); z-index:10;}
-  .bottomnav button{flex:1; background:none; border:none; color:var(--mist-dim); display:flex; flex-direction:column; align-items:center; gap:3px; padding:6px 2px; font-size:10.2px; font-weight:600; border-radius:12px;}
+  .topbar .date{font-size:11px; color:var(--mist); text-align:right;}
+  .topbar .right{display:flex; align-items:center; gap:10px;}
+  .icon-btn{width:34px; height:34px; border-radius:10px; background:var(--surface); border:1px solid var(--border); color:var(--mist); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .icon-btn svg{width:16px; height:16px;}
+  #content{flex:1; padding:16px 16px calc(100px + var(--safe-bottom));}
+  .bottomnav{position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:428px; display:flex; background:rgba(21,18,32,.94); backdrop-filter:blur(14px); border-top:1px solid var(--border); padding:8px 10px calc(8px + var(--safe-bottom)); z-index:10;}
+  .bottomnav button{flex:1; background:none; border:none; color:var(--mist-dim); display:flex; flex-direction:column; align-items:center; gap:4px; padding:7px 2px; font-size:10.5px; font-weight:600; border-radius:12px; min-height:50px; justify-content:center;}
   .bottomnav button.active{color:var(--ultraviolet);}
   .bottomnav button.addbtn{color:var(--ultraviolet);}
-  .bottomnav svg{width:20px; height:20px;}
-  .bottomnav .addcircle{width:34px; height:34px; border-radius:50%; background:var(--grad); display:flex; align-items:center; justify-content:center; margin-bottom:1px; box-shadow:0 6px 16px -4px rgba(139,92,246,.7);}
-  .bottomnav .addcircle svg{width:18px; height:18px; color:#fff; stroke:#fff;}
+  .bottomnav svg{width:21px; height:21px;}
+  .bottomnav .addcircle{width:42px; height:42px; border-radius:50%; background:var(--grad); display:flex; align-items:center; justify-content:center; margin-bottom:2px; box-shadow:0 6px 18px -4px rgba(139,92,246,.7);}
+  .bottomnav .addcircle svg{width:20px; height:20px; color:#fff; stroke:#fff;}
 
   /* ---------- shared ---------- */
   .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px;}
@@ -77,88 +85,73 @@
   .stat{flex:1; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px;}
   .stat .num{font-family:'Bebas Neue',sans-serif; font-size:26px; color:var(--ultraviolet);}
   .stat .lbl{font-size:10.5px; color:var(--mist); margin-top:2px;}
-  .btn-outline{width:100%; padding:14px; border-radius:14px; border:1.5px dashed var(--amethyst-dim); background:transparent; color:var(--ultraviolet); font-weight:700; font-size:14px; margin-top:12px;}
-  .btn-outline-sm{padding:9px 14px; border-radius:11px; border:1.5px dashed var(--amethyst-dim); background:transparent; color:var(--ultraviolet); font-weight:700; font-size:12.5px;}
-  .btn-ghost-sm{padding:9px 14px; border-radius:11px; border:1px solid var(--border); background:var(--surface-2); color:var(--mist); font-weight:600; font-size:12.5px;}
-  .btn-danger-sm{padding:9px 14px; border-radius:11px; border:1px solid rgba(242,96,122,.35); background:rgba(242,96,122,.08); color:var(--danger); font-weight:700; font-size:12.5px;}
+  .btn-outline{width:100%; padding:15px; border-radius:14px; border:1.5px dashed var(--amethyst-dim); background:transparent; color:var(--ultraviolet); font-weight:700; font-size:14.5px; margin-top:12px; min-height:50px;}
+  .btn-ghost-sm{padding:10px 14px; border-radius:11px; border:1px solid var(--border); background:var(--surface-2); color:var(--mist); font-weight:600; font-size:12.5px; min-height:40px;}
+  .btn-danger-sm{padding:10px 14px; border-radius:11px; border:1px solid rgba(242,96,122,.35); background:rgba(242,96,122,.08); color:var(--danger); font-weight:700; font-size:12.5px; min-height:40px;}
   .row-gap{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
-  .back-row{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
-  .back-btn{background:var(--surface); border:1px solid var(--border); color:#fff; width:36px; height:36px; border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
-  .back-title{font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:.02em; flex:1;}
-  .empty-state{text-align:center; padding:46px 20px; color:var(--mist);}
-  .empty-state p{font-size:13.5px; line-height:1.5;}
+  .back-row{display:flex; align-items:center; gap:10px; margin-bottom:18px;}
+  .back-btn{background:var(--surface); border:1px solid var(--border); color:#fff; width:38px; height:38px; border-radius:11px; display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  .back-title{font-family:'Bebas Neue',sans-serif; font-size:22px; letter-spacing:.02em; flex:1;}
+  .empty-state{text-align:center; padding:50px 20px; color:var(--mist);}
+  .empty-state svg{width:38px; height:38px; color:var(--mist-dim); margin-bottom:14px;}
+  .empty-state p{font-size:13.5px; line-height:1.55;}
 
   /* ---------- NAPLÓ (log) ---------- */
   .hist-card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:12px;}
-  .hist-head{display:flex; justify-content:space-between; align-items:center; cursor:pointer;}
-  .hist-head .hname{font-weight:700; font-size:15px;}
-  .hist-head .hdate{font-size:12px; color:var(--mist); margin-top:2px;}
-  .hist-head .hmeta{font-size:11px; color:var(--mist-dim); margin-top:4px;}
+  .hist-head{display:flex; justify-content:space-between; align-items:center; cursor:pointer; min-height:36px;}
+  .hist-head .hname{font-weight:700; font-size:15.5px;}
+  .hist-head .hdate{font-size:12px; color:var(--mist); margin-top:3px;}
+  .hist-head .hmeta{font-size:11px; color:var(--mist-dim); margin-top:5px;}
+  .hist-head .chev{color:var(--mist-dim); font-size:20px; transition:.2s; flex-shrink:0; padding-left:8px;}
+  .hist-card.open .chev{transform:rotate(90deg); color:var(--ultraviolet);}
   .hist-detail{margin-top:14px; padding-top:14px; border-top:1px solid var(--border); display:none;}
   .hist-detail.open{display:block;}
-  .hist-ex{margin-bottom:12px;}
-  .hist-ex .exn{font-size:13px; font-weight:700; color:var(--ultraviolet); margin-bottom:6px;}
-  .hist-set-line{font-family:'JetBrains Mono',monospace; font-size:12.5px; color:var(--mist); display:flex; gap:8px;}
-  .hist-actions{display:flex; gap:8px; margin-top:14px;}
+  .hist-ex{margin-bottom:14px;}
+  .hist-ex:last-child{margin-bottom:0;}
+  .hist-ex .exn{font-size:13.5px; font-weight:700; color:var(--ultraviolet); margin-bottom:7px;}
+  .hist-set-line{font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--mist); display:flex; gap:8px; padding:2px 0;}
+  .hist-actions{display:flex; gap:8px; margin-top:16px;}
 
-  /* ---------- ENTRY FORM ---------- */
-  .ex-block{background:var(--surface-2); border:1px solid var(--border); border-radius:16px; padding:14px; margin-bottom:12px;}
+  /* ---------- ENTRY FORM (a fő funkció) ---------- */
+  .ex-block{background:var(--surface-2); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:14px;}
   .ex-block-head{display:flex; justify-content:space-between; align-items:flex-start;}
-  .ex-block-head .exname{font-weight:700; font-size:14.5px;}
-  .ex-block-head .extarget{font-size:11.5px; color:var(--gold); margin-top:2px;}
-  .ex-block-head .ghost{font-size:11.5px; color:var(--mist-dim); margin-top:2px; font-family:'JetBrains Mono',monospace;}
-  .rm-block{background:none; border:none; color:var(--mist-dim); font-size:18px; padding:0 4px;}
+  .ex-block-head .exname{font-weight:700; font-size:15.5px;}
+  .ex-block-head .extarget{font-size:11.5px; color:var(--gold); margin-top:3px;}
+  .ex-block-head .ghost{font-size:11.5px; color:var(--mist-dim); margin-top:3px; font-family:'JetBrains Mono',monospace; line-height:1.4;}
+  .rm-block{background:none; border:none; color:var(--mist-dim); font-size:20px; padding:2px 6px; min-width:32px; min-height:32px;}
   .set-row{display:flex; align-items:center; gap:8px; margin-top:10px;}
-  .set-row .set-num{width:20px; height:20px; border-radius:6px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; font-size:10.5px; font-weight:700; color:var(--mist); flex-shrink:0;}
-  .set-row input{width:0; flex:1; text-align:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:15px; padding:10px 4px; border-radius:10px; background:var(--surface); border:1px solid var(--border); color:#fff;}
-  .set-row .x{color:var(--mist-dim); font-size:13px;}
-  .set-row .pr-tag{background:var(--gold); color:#241a02; font-size:9.5px; font-weight:800; padding:3px 6px; border-radius:6px; display:none; flex-shrink:0;}
-  .set-row .rm-set{background:none; border:none; color:var(--mist-dim); font-size:17px; flex-shrink:0; width:22px;}
-  .add-set-link{margin-top:10px; background:none; border:none; color:var(--ultraviolet); font-size:12.5px; font-weight:700; padding:4px 0;}
+  .set-row .set-num{width:24px; height:24px; border-radius:7px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--mist); flex-shrink:0;}
+  .set-row input{width:0; flex:1; text-align:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:17px; padding:12px 4px; border-radius:11px; background:var(--surface); border:1px solid var(--border); color:#fff;}
+  .set-row input:focus{outline:2px solid var(--amethyst); outline-offset:0; border-color:var(--amethyst);}
+  .set-row .x{color:var(--mist-dim); font-size:13px; flex-shrink:0;}
+  .set-row .pr-tag{background:var(--gold); color:#241a02; font-size:9.5px; font-weight:800; padding:4px 6px; border-radius:6px; display:none; flex-shrink:0;}
+  .set-row .rm-set{background:none; border:none; color:var(--mist-dim); font-size:19px; flex-shrink:0; width:30px; height:30px;}
+  .add-set-link{margin-top:12px; background:none; border:none; color:var(--ultraviolet); font-size:13px; font-weight:700; padding:6px 0; min-height:32px;}
 
   /* ---------- picker ---------- */
-  .search-box{width:100%; padding:13px 16px; border-radius:14px; background:var(--surface); border:1px solid var(--border); color:#fff; font-size:14.5px; margin-bottom:6px;}
+  .search-box{width:100%; padding:14px 16px; border-radius:14px; background:var(--surface); border:1px solid var(--border); color:#fff; margin-bottom:6px;}
   .muscle-group{font-size:11px; color:var(--mist-dim); text-transform:uppercase; letter-spacing:.08em; font-weight:700; margin:18px 0 8px;}
-  .pick-row{display:flex; align-items:center; justify-content:space-between; padding:14px 16px; background:var(--surface); border-radius:14px; margin-bottom:8px; border:1px solid var(--border);}
+  .pick-row{display:flex; align-items:center; justify-content:space-between; padding:15px 16px; background:var(--surface); border-radius:14px; margin-bottom:8px; border:1px solid var(--border);}
   .pick-row span{font-size:14.5px; font-weight:600;}
-  .pick-row button{background:var(--amethyst); border:none; color:#fff; width:30px; height:30px; border-radius:9px; font-size:18px; line-height:1;}
+  .pick-row button{background:var(--amethyst); border:none; color:#fff; width:32px; height:32px; border-radius:9px; font-size:18px; line-height:1; flex-shrink:0;}
 
-  /* ---------- stats ---------- */
-  .chart-card{background:var(--surface); border:1px solid var(--border); border-radius:18px; padding:16px; margin-bottom:16px;}
-  .chart-card h3{font-size:13.5px; font-weight:700; margin-bottom:4px;}
-  .chart-card .sub{font-size:11.5px; color:var(--mist); margin-bottom:12px;}
-  .chart-wrap{position:relative; height:200px;}
-  .chart-card select{width:100%; padding:11px 14px; border-radius:12px; background:var(--surface-2); border:1px solid var(--border); color:#fff; font-size:13.5px; margin-bottom:12px;}
-
-  /* ---------- plans ---------- */
-  .plan-card{background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:12px;}
-  .plan-card .pname{font-family:'Bebas Neue',sans-serif; font-size:21px; letter-spacing:.02em;}
-  .plan-card .pdesc{font-size:12.5px; color:var(--mist); margin-top:2px; margin-bottom:10px;}
-  .plan-day{margin-top:10px;}
-  .plan-day .dlabel{font-size:11px; font-weight:700; color:var(--ultraviolet); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px;}
-  .plan-item-line{display:flex; justify-content:space-between; font-size:12.5px; color:var(--mist); padding:5px 0; border-bottom:1px dashed var(--border);}
-  .plan-item-line:last-child{border-bottom:none;}
-  .template-card{background:linear-gradient(180deg, rgba(139,92,246,.1), var(--surface) 70%); border:1px solid var(--amethyst-dim); border-radius:16px; padding:16px; margin-bottom:12px;}
-
-  .day-editor{background:var(--surface-3); border-radius:14px; padding:12px; margin-bottom:12px; border:1px solid var(--border);}
-  .day-editor input.daylabel{width:100%; padding:9px 12px; border-radius:9px; background:var(--surface); border:1px solid var(--border); color:#fff; font-weight:700; font-size:13px; margin-bottom:8px;}
-  .plan-item-row{display:flex; align-items:center; gap:8px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:8px 10px; margin-bottom:6px;}
-  .plan-item-row .piname{flex:1; font-size:12.5px; font-weight:600;}
-  .plan-item-row input{width:44px; text-align:center; padding:7px 4px; border-radius:8px; background:var(--surface-2); border:1px solid var(--border); color:#fff; font-size:12px; font-family:'JetBrains Mono',monospace;}
-  .plan-item-row input.reps{width:56px;}
-  .plan-item-row .rmpi{background:none; border:none; color:var(--mist-dim); font-size:16px;}
-
-  /* ---------- profile ---------- */
-  .profile-card{display:flex; align-items:center; gap:14px; padding:18px;}
-  .avatar{width:52px; height:52px; border-radius:16px; background:var(--grad); display:flex; align-items:center; justify-content:center; font-family:'Bebas Neue',sans-serif; font-size:22px; flex-shrink:0;}
-  .profile-email{font-weight:700; font-size:14.5px; word-break:break-all;}
-  .profile-sub{font-size:12px; color:var(--mist); margin-top:2px;}
-  .btn-danger{width:100%; padding:14px; border-radius:14px; border:1px solid rgba(242,96,122,.4); background:rgba(242,96,122,.08); color:var(--danger); font-weight:700; font-size:14px; margin-top:18px;}
-  .bw-entry-line{display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid var(--border); font-size:13px;}
+  /* ---------- TESTSÚLY ---------- */
+  .bw-entry-line{display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); font-size:13.5px;}
   .bw-entry-line:last-child{border-bottom:none;}
-  .bw-entry-line .del{background:none; border:none; color:var(--mist-dim); font-size:15px;}
+  .bw-entry-line .bwdate{color:var(--mist);}
+  .bw-entry-line .bwright{display:flex; align-items:center; gap:10px;}
+  .bw-entry-line .bwval{font-family:'JetBrains Mono',monospace; font-weight:700;}
+  .bw-delta{font-size:10.5px; font-weight:700; padding:2px 6px; border-radius:6px;}
+  .bw-delta.up{color:var(--green); background:rgba(52,211,153,.12);}
+  .bw-delta.down{color:var(--danger); background:rgba(242,96,122,.12);}
+  .bw-delta.flat{color:var(--mist-dim); background:var(--surface-2);}
+  .bw-entry-line .del{background:none; border:none; color:var(--mist-dim); font-size:16px; width:30px; height:30px;}
+  .bw-latest{display:flex; align-items:baseline; gap:10px; margin-bottom:4px;}
+  .bw-latest .num{font-family:'Bebas Neue',sans-serif; font-size:40px; color:var(--ultraviolet); line-height:1;}
+  .bw-latest .unit{font-size:14px; color:var(--mist);}
+  .bw-latest-lbl{font-size:11.5px; color:var(--mist-dim); margin-bottom:2px;}
 
-  #toast{position:fixed; bottom:calc(88px + var(--safe-bottom)); left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface-3); border:1px solid var(--border); padding:12px 18px; border-radius:14px; font-size:13.5px; opacity:0; transition:.25s; pointer-events:none; z-index:50; max-width:88%; text-align:center;}
+  #toast{position:fixed; bottom:calc(94px + var(--safe-bottom)); left:50%; transform:translateX(-50%) translateY(20px); background:var(--surface-3); border:1px solid var(--border); padding:13px 18px; border-radius:14px; font-size:13.5px; opacity:0; transition:.25s; pointer-events:none; z-index:50; max-width:88%; text-align:center;}
   #toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
 </style>
 </head>
@@ -170,7 +163,7 @@
       ⚠️ Nincs beállítva a Supabase kapcsolat. A fájl tetején (CONFIG rész) írd be a <b>SUPABASE_URL</b> és <b>SUPABASE_ANON_KEY</b> értékeket.
     </div>
     <div class="wordmark">GYM<span>TRACK</span></div>
-    <p class="tagline">Naplózd az edzéseidet, kövesd a fejlődésed grafikonon, és kövess egy edzéstervet.</p>
+    <p class="tagline">Naplózd le egyszerűen, mit és mennyit toltál az edzésen.</p>
     <div class="authtabs">
       <button id="tabSignIn" class="active">Bejelentkezés</button>
       <button id="tabSignUp">Regisztráció</button>
@@ -184,7 +177,12 @@
   <div id="view-main" class="view hidden">
     <div class="topbar">
       <div class="logo">GYM<span>TRACK</span></div>
-      <div class="date" id="topDate"></div>
+      <div class="right">
+        <div class="date" id="topDate"></div>
+        <button class="icon-btn" id="signOutBtn" title="Kijelentkezés">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+        </button>
+      </div>
     </div>
     <div id="content"></div>
     <nav class="bottomnav">
@@ -192,21 +190,13 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
         Napló
       </button>
-      <button data-view="stats" class="navbtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg>
-        Statisztika
-      </button>
       <button id="navAdd" class="addbtn">
         <span class="addcircle"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></span>
         Új
       </button>
-      <button data-view="plans" class="navbtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-        Tervek
-      </button>
-      <button data-view="profile" class="navbtn">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 5-6 8-6s6.5 2 8 6"/></svg>
-        Profil
+      <button data-view="weight" class="navbtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l2.5 2.5"/></svg>
+        Testsúly
       </button>
     </nav>
   </div>
@@ -226,52 +216,9 @@ let sb = null;
 if (CONFIGURED) { sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY); }
 else { document.getElementById('configWarning').classList.remove('hidden'); }
 
-// legacy cleanup from earlier version of the app
-localStorage.removeItem('gt_active_workout');
-localStorage.removeItem('gt_active_started');
-
-/* ---------- template plans (kattintással klónozhatók) ---------- */
-const TEMPLATE_PLANS = [
-  { name:'Kezdő teljes test (heti 3x)', description:'Egyetlen teljes test edzés, amit hetente 3x ismételsz.',
-    days:[{ day_label:'Teljes test', items:[
-      ['Guggolás rúddal (back squat)',3,'8-10'], ['Fekvenyomás rúddal',3,'8-10'],
-      ['Evezés rúddal (barbell row)',3,'8-10'], ['Vállból nyomás rúddal (military press)',3,'8-10'],
-      ['Lábhajlítás gépen fekve',3,'10-12'], ['Hasprés (crunch)',3,'15'] ]}] },
-  { name:'Push / Pull / Legs', description:'Klasszikus 3 napos felosztás nyomó / húzó / láb napokra.',
-    days:[
-      { day_label:'Push — mell, váll, tricepsz', items:[
-        ['Fekvenyomás rúddal',4,'6-8'], ['Ferde fekvenyomás súlyzóval',3,'8-10'],
-        ['Vállból nyomás súlyzóval',3,'8-10'], ['Oldalemelés súlyzóval',3,'12-15'],
-        ['Tricepsz nyomás kötéllel (pushdown)',3,'10-12'] ]},
-      { day_label:'Pull — hát, bicepsz', items:[
-        ['Húzódzkodás',4,'6-8'], ['Evezés rúddal (barbell row)',4,'8-10'],
-        ['Lehúzás széles fogással (lat pulldown)',3,'10-12'], ['Bicepsz hajlítás rúddal',3,'8-10'],
-        ['Fordított hajlítás (hammer curl)',3,'10-12'] ]},
-      { day_label:'Legs — comb, vádli, has', items:[
-        ['Guggolás rúddal (back squat)',4,'6-8'], ['Romániai felhúzás (RDL)',3,'8-10'],
-        ['Lábtolás (leg press)',3,'10-12'], ['Vádliemelés állva',4,'12-15'],
-        ['Plank (deszka tartás)',3,'60mp'] ]} ] },
-  { name:'Felső / Alsó split', description:'4 napos program, felváltva felső és alsó test fókusszal.',
-    days:[
-      { day_label:'Felső test', items:[
-        ['Fekvenyomás rúddal',4,'6-8'], ['Evezés rúddal (barbell row)',4,'6-8'],
-        ['Vállból nyomás súlyzóval',3,'8-10'], ['Lehúzás széles fogással (lat pulldown)',3,'10-12'],
-        ['Bicepsz hajlítás súlyzóval',3,'10-12'], ['Tricepsz gépen',3,'10-12'] ]},
-      { day_label:'Alsó test', items:[
-        ['Guggolás rúddal (back squat)',4,'6-8'], ['Romániai felhúzás (RDL)',3,'8-10'],
-        ['Lábtolás (leg press)',3,'10-12'], ['Lábhajlítás gépen fekve',3,'10-12'],
-        ['Vádliemelés állva',4,'12-15'], ['Hasprés (crunch)',3,'15-20'] ]} ] },
-  { name:'5×5 erő program', description:'Egyszerű, kipróbált erőnléti alap két váltakozó edzésnappal.',
-    days:[
-      { day_label:'Nap A', items:[ ['Guggolás rúddal (back squat)',5,'5'], ['Fekvenyomás rúddal',5,'5'], ['Evezés rúddal (barbell row)',5,'5'] ]},
-      { day_label:'Nap B', items:[ ['Guggolás rúddal (back squat)',5,'5'], ['Vállból nyomás rúddal (military press)',5,'5'], ['Felhúzás (deadlift)',1,'5'] ]} ] },
-];
-
 /* ---------- state ---------- */
 let state = { session:null, exercises:[] };
-let entryDraft = null;     // { editingWorkoutId, date, name, notes, bodyweight, blocks:[{exerciseId,exerciseName,targetLabel,ghostText,ghostBest,sets:[{weight,reps}]}] }
-let planDraft = null;      // { editingPlanId, name, description, days:[{day_label, items:[{exerciseId,exerciseName,target_sets,target_reps}]}] }
-let charts = { bw:null, vol:null, ex:null };
+let entryDraft = null; // { editingWorkoutId, date, name, notes, bodyweight, blocks:[{exerciseId,exerciseName,targetLabel,ghostText,ghostBest,sets:[{weight,reps}]}] }
 
 /* ---------- helpers ---------- */
 const $ = (s, el=document) => el.querySelector(s);
@@ -283,8 +230,6 @@ function todayLabel(){ return new Date().toLocaleDateString('hu-HU',{weekday:'lo
 function todayInputDate(){ return new Date().toISOString().slice(0,10); }
 function dateToTimestamp(dateStr){ return new Date(dateStr + 'T12:00:00').toISOString(); }
 function exerciseName(id){ const e = state.exercises.find(x=>x.id===id); return e ? e.name : 'Gyakorlat'; }
-function findExerciseByName(name){ return state.exercises.find(e => e.name.toLowerCase() === name.toLowerCase()); }
-function mondayOf(dateObj){ const d = new Date(dateObj); const day = (d.getDay()+6)%7; d.setDate(d.getDate()-day); d.setHours(0,0,0,0); return d; }
 
 /* =========================================================
    AUTH
@@ -322,6 +267,10 @@ function translateAuthError(m){
 if (CONFIGURED) {
   sb.auth.onAuthStateChange((event, session) => { state.session = session; if (session) enterApp(); else showAuth(); });
 }
+$('#signOutBtn').onclick = async () => {
+  if (!confirm('Biztosan kijelentkezel?')) return;
+  await sb.auth.signOut();
+};
 function showAuth(){ $('#view-auth').classList.remove('hidden'); $('#view-main').classList.add('hidden'); }
 async function enterApp(){
   $('#view-auth').classList.add('hidden'); $('#view-main').classList.remove('hidden');
@@ -339,9 +288,7 @@ $('#navAdd').onclick = () => openEntryForm(null);
 function switchView(view){
   $$('.navbtn').forEach(b => b.classList.toggle('active', b.dataset.view === view));
   if (view === 'log') renderLog();
-  if (view === 'stats') renderStats();
-  if (view === 'plans') renderPlans();
-  if (view === 'profile') renderProfile();
+  if (view === 'weight') renderWeight();
 }
 
 async function loadExercises(){
@@ -408,7 +355,9 @@ async function renderLog(){
   const listEl = $('#histList');
   if (error) { listEl.innerHTML = '<p style="color:var(--mist)">Hiba történt a betöltés közben.</p>'; return; }
   if (!workouts || !workouts.length) {
-    listEl.innerHTML = `<div class="empty-state"><p>Még nincs naplózott edzésed.<br>Koppints a lenti <b>Új</b> gombra az elsőhöz!</p></div>`;
+    listEl.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/><rect x="2" y="9" width="4" height="6" rx="1"/><rect x="18" y="9" width="4" height="6" rx="1"/><rect x="6" y="10.5" width="3" height="3" rx=".5"/><rect x="15" y="10.5" width="3" height="3" rx=".5"/></svg>
+      <p>Még nincs naplózott edzésed.<br>Koppints a lenti <b>Új</b> gombra az elsőhöz!</p></div>`;
     return;
   }
   listEl.innerHTML = '';
@@ -429,10 +378,9 @@ async function renderLog(){
       <div class="hist-detail" id="detail-${w.id}"></div>
     `;
     card.querySelector('.hist-head').onclick = () => {
-      const detail = card.querySelector('.hist-detail');
-      const open = detail.classList.contains('open');
-      $$('.hist-detail').forEach(d => d.classList.remove('open'));
-      if (!open) { detail.classList.add('open'); renderWorkoutDetail(w, detail); }
+      const open = card.classList.contains('open');
+      $$('.hist-card').forEach(c => { c.classList.remove('open'); c.querySelector('.hist-detail').classList.remove('open'); });
+      if (!open) { card.classList.add('open'); card.querySelector('.hist-detail').classList.add('open'); renderWorkoutDetail(w, card.querySelector('.hist-detail')); }
     };
     listEl.appendChild(card);
   });
@@ -460,7 +408,7 @@ function renderWorkoutDetail(w, detailEl){
   const sets = w.workout_sets || [];
   if (!sets.length) { detailEl.innerHTML = '<p style="color:var(--mist); font-size:13px;">Nincs rögzített szett.</p>'; return; }
   const byExercise = {};
-  sets.sort((a,b)=>a.set_number-b.set_number).forEach(s => { (byExercise[s.exercise_id] ||= []).push(s); });
+  sets.slice().sort((a,b)=>a.set_number-b.set_number).forEach(s => { (byExercise[s.exercise_id] ||= []).push(s); });
   detailEl.innerHTML = '';
   Object.keys(byExercise).forEach(exId => {
     const block = document.createElement('div'); block.className='hist-ex';
@@ -481,9 +429,9 @@ function renderWorkoutDetail(w, detailEl){
 }
 
 /* =========================================================
-   ÚJ BEJEGYZÉS / SZERKESZTÉS (retrospektív naplózás)
+   ÚJ BEJEGYZÉS / SZERKESZTÉS — a fő funkció
    ========================================================= */
-function openEntryForm(existingWorkout, planPrefill){
+function openEntryForm(existingWorkout){
   if (existingWorkout) {
     const sets = (existingWorkout.workout_sets || []).slice().sort((a,b)=>a.set_number-b.set_number);
     const byExercise = {};
@@ -501,15 +449,6 @@ function openEntryForm(existingWorkout, planPrefill){
     };
   } else {
     entryDraft = { editingWorkoutId:null, date: todayInputDate(), name:'Edzés', notes:'', bodyweight:'', blocks: [] };
-    if (planPrefill) {
-      entryDraft.name = planPrefill.planName + (planPrefill.dayLabel ? ' — ' + planPrefill.dayLabel : '');
-      planPrefill.items.forEach(it => {
-        const ex = state.exercises.find(e => e.id === it.exercise_id);
-        if (!ex) return;
-        const emptySets = Array.from({length: it.target_sets || 1}, () => ({weight:'', reps:''}));
-        entryDraft.blocks.push({ exerciseId: ex.id, exerciseName: ex.name, targetLabel: `Cél: ${it.target_sets}×${it.target_reps}`, ghostText:'', ghostBest:0, sets: emptySets });
-      });
-    }
   }
   renderEntryForm();
   entryDraft.blocks.forEach((b, i) => loadGhostForBlock(i));
@@ -525,7 +464,7 @@ function renderEntryForm(){
     <div id="efBlocks"></div>
     <button class="btn-outline" id="efAddEx">+ Gyakorlat hozzáadása</button>
     <div class="section-title">Extra</div>
-    <div class="field"><label>Testsúlyod ma (kg) — opcionális</label><input type="number" step="0.1" id="efBw" placeholder="pl. 82.4" value="${entryDraft.bodyweight}"></div>
+    <div class="field"><label>Testsúlyod ma (kg) — opcionális</label><input type="number" inputmode="decimal" step="0.1" id="efBw" placeholder="pl. 82.4" value="${entryDraft.bodyweight}"></div>
     <div class="field"><label>Jegyzet — opcionális</label><textarea id="efNotes">${entryDraft.notes}</textarea></div>
     <button class="btn-primary" id="efSave">Mentés</button>
   `;
@@ -680,322 +619,20 @@ async function saveEntry(){
 }
 
 /* =========================================================
-   STATISZTIKA
+   TESTSÚLY
    ========================================================= */
-async function renderStats(){
+async function renderWeight(){
   const content = $('#content');
   content.innerHTML = `
-    <div class="chart-card">
-      <h3>Testsúly alakulása</h3>
-      <div class="sub">A Profil fülön tudsz új mérést rögzíteni.</div>
-      <div class="chart-wrap"><canvas id="chartBW"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Heti összterhelés</h3>
-      <div class="sub">Súly × ismétlés összesítve, hétről hétre.</div>
-      <div class="chart-wrap"><canvas id="chartVol"></canvas></div>
-    </div>
-    <div class="chart-card">
-      <h3>Gyakorlat fejlődése</h3>
-      <div class="sub">Legjobb szett súlya és a becsült 1RM alkalmanként.</div>
-      <select id="exPick"></select>
-      <div class="chart-wrap"><canvas id="chartEx"></canvas></div>
-    </div>
-  `;
-
-  const uid = state.session.user.id;
-
-  // --- testsúly chart
-  const { data: bwData } = await sb.from('body_weight_logs').select('log_date,weight_kg').eq('user_id', uid).order('log_date');
-  if (charts.bw) charts.bw.destroy();
-  if (bwData && bwData.length) {
-    charts.bw = new Chart($('#chartBW'), chartConfig('line',
-      bwData.map(r => fmtDateShort(r.log_date)),
-      [{ label:'Testsúly (kg)', data: bwData.map(r=>r.weight_kg), borderColor:'#C084FC', backgroundColor:'rgba(192,132,252,.15)', fill:true, tension:.3 }]
-    ));
-  } else {
-    $('#chartBW').closest('.chart-card').querySelector('.chart-wrap').innerHTML = `<p style="color:var(--mist); font-size:12.5px; padding-top:70px; text-align:center;">Még nincs rögzített testsúly adat.</p>`;
-  }
-
-  // --- sets with nested workout date, for volume + exercise progression
-  const { data: allSets } = await sb.from('workout_sets').select('weight,reps,exercise_id,workout_id,workouts(started_at)').eq('user_id', uid);
-
-  // weekly volume
-  const weekMap = {};
-  (allSets||[]).forEach(s => {
-    const dateStr = s.workouts?.started_at; if (!dateStr) return;
-    const wk = mondayOf(new Date(dateStr));
-    const key = wk.toISOString().slice(0,10);
-    weekMap[key] = (weekMap[key]||0) + s.weight*s.reps;
-  });
-  const weekKeys = Object.keys(weekMap).sort().slice(-10);
-  if (charts.vol) charts.vol.destroy();
-  if (weekKeys.length) {
-    charts.vol = new Chart($('#chartVol'), chartConfig('bar',
-      weekKeys.map(k => fmtDateShort(k)),
-      [{ label:'kg / hét', data: weekKeys.map(k=>Math.round(weekMap[k])), backgroundColor:'#8B5CF6', borderRadius:6 }]
-    ));
-  } else {
-    $('#chartVol').closest('.chart-card').querySelector('.chart-wrap').innerHTML = `<p style="color:var(--mist); font-size:12.5px; padding-top:70px; text-align:center;">Még nincs elég adat.</p>`;
-  }
-
-  // exercise progression dropdown + chart
-  const exIds = [...new Set((allSets||[]).map(s=>s.exercise_id))];
-  const exPick = $('#exPick');
-  if (!exIds.length) {
-    exPick.innerHTML = `<option>Nincs még naplózott gyakorlat</option>`;
-    exPick.disabled = true;
-  } else {
-    const opts = exIds.map(id => ({ id, name: exerciseName(id) })).sort((a,b)=>a.name.localeCompare(b.name,'hu'));
-    exPick.innerHTML = opts.map(o => `<option value="${o.id}">${o.name}</option>`).join('');
-    exPick.onchange = () => renderExerciseChart(allSets, exPick.value);
-    renderExerciseChart(allSets, exPick.value);
-  }
-}
-
-function renderExerciseChart(allSets, exerciseId){
-  const bySession = {};
-  allSets.filter(s => s.exercise_id === exerciseId && s.workouts?.started_at).forEach(s => {
-    const key = s.workouts.started_at;
-    if (!bySession[key] || s.weight > bySession[key].weight || (s.weight === bySession[key].weight && s.reps > bySession[key].reps)) {
-      bySession[key] = { weight: s.weight, reps: s.reps };
-    }
-  });
-  const dates = Object.keys(bySession).sort();
-  if (charts.ex) charts.ex.destroy();
-  if (!dates.length) return;
-  const topWeights = dates.map(d => bySession[d].weight);
-  const est1rm = dates.map(d => Math.round(bySession[d].weight * (1 + bySession[d].reps/30) * 10)/10);
-  charts.ex = new Chart($('#chartEx'), chartConfig('line',
-    dates.map(fmtDateShort),
-    [
-      { label:'Legjobb szett (kg)', data: topWeights, borderColor:'#8B5CF6', backgroundColor:'rgba(139,92,246,.15)', fill:true, tension:.3 },
-      { label:'Becsült 1RM (kg)', data: est1rm, borderColor:'#F0B429', backgroundColor:'rgba(240,180,41,0)', borderDash:[5,4], tension:.3 }
-    ]
-  ));
-}
-
-function chartConfig(type, labels, datasets){
-  return {
-    type, data:{ labels, datasets },
-    options:{
-      responsive:true, maintainAspectRatio:false,
-      plugins:{ legend:{ display: datasets.length>1, labels:{ color:'#B4AFC4', font:{size:11}, boxWidth:12 } } },
-      scales:{
-        x:{ ticks:{ color:'#6E687F', font:{size:10} }, grid:{ color:'rgba(255,255,255,.05)' } },
-        y:{ ticks:{ color:'#6E687F', font:{size:10} }, grid:{ color:'rgba(255,255,255,.05)' } }
-      }
-    }
-  };
-}
-
-/* =========================================================
-   TERVEK (edzéstervek / komplex trainer)
-   ========================================================= */
-async function renderPlans(){
-  const content = $('#content');
-  content.innerHTML = `
-    <div class="section-title">Sablonok</div>
-    <div id="templateList"></div>
-    <div class="section-title">Saját terveim</div>
-    <div id="myPlans">Betöltés…</div>
-    <button class="btn-outline" id="newPlanBtn">+ Új terv létrehozása</button>
-  `;
-  $('#newPlanBtn').onclick = () => openPlanEditor(null);
-
-  const tList = $('#templateList');
-  tList.innerHTML = '';
-  TEMPLATE_PLANS.forEach((t, i) => {
-    const el = document.createElement('div'); el.className='template-card';
-    el.innerHTML = `
-      <div class="pname">${t.name}</div>
-      <div class="pdesc">${t.description}</div>
-      ${t.days.map(d => `<div class="plan-day"><div class="dlabel">${d.day_label}</div>${d.items.map(it=>`<div class="plan-item-line"><span>${it[0]}</span><span>${it[1]}×${it[2]}</span></div>`).join('')}</div>`).join('')}
-      <button class="btn-outline-sm" style="margin-top:12px;" data-clone="${i}">+ Mentés saját tervként</button>
-    `;
-    tList.appendChild(el);
-  });
-  tList.querySelectorAll('[data-clone]').forEach(btn => { btn.onclick = () => cloneTemplate(TEMPLATE_PLANS[parseInt(btn.dataset.clone)]); });
-
-  const { data: plans, error } = await sb.from('training_plans').select('*, training_plan_items(*)').eq('user_id', state.session.user.id).order('created_at');
-  const myPlans = $('#myPlans');
-  if (error) { myPlans.innerHTML = '<p style="color:var(--mist)">Hiba a tervek betöltésekor.</p>'; return; }
-  if (!plans || !plans.length) { myPlans.innerHTML = `<div class="empty-state"><p>Még nincs mentett terved.<br>Használj egy sablont, vagy hozz létre sajátot.</p></div>`; return; }
-  myPlans.innerHTML = '';
-  plans.forEach(p => {
-    const days = {};
-    (p.training_plan_items||[]).sort((a,b)=>a.order_index-b.order_index).forEach(it => { (days[it.day_label] ||= []).push(it); });
-    const el = document.createElement('div'); el.className='plan-card';
-    el.innerHTML = `
-      <div class="pname">${p.name}</div>
-      ${p.description ? `<div class="pdesc">${p.description}</div>` : ''}
-      ${Object.keys(days).map(dl => `<div class="plan-day"><div class="dlabel">${dl}</div>${days[dl].map(it=>`<div class="plan-item-line"><span>${exerciseName(it.exercise_id)}</span><span>${it.target_sets}×${it.target_reps}</span></div>`).join('')}</div>`).join('')}
-      <div class="row-gap">
-        ${Object.keys(days).map(dl => `<button class="btn-outline-sm" data-use="${p.id}|${dl}">Naplózás: ${dl}</button>`).join('')}
-        <button class="btn-ghost-sm" data-edit="${p.id}">Szerkesztés</button>
-        <button class="btn-danger-sm" data-del="${p.id}">Törlés</button>
-      </div>
-    `;
-    myPlans.appendChild(el);
-    el.querySelectorAll('[data-use]').forEach(btn => {
-      btn.onclick = () => {
-        const [planId, dayLabel] = btn.dataset.use.split('|');
-        const items = days[dayLabel];
-        openEntryForm(null, { planName: p.name, dayLabel, items });
-      };
-    });
-    el.querySelector('[data-edit]').onclick = () => openPlanEditor(p);
-    el.querySelector('[data-del]').onclick = async () => {
-      if (!confirm('Törlöd ezt a tervet?')) return;
-      await sb.from('training_plans').delete().eq('id', p.id);
-      toast('Terv törölve.');
-      renderPlans();
-    };
-  });
-}
-
-async function cloneTemplate(template){
-  toast('Terv mentése…');
-  const { data: plan, error } = await sb.from('training_plans').insert({ user_id: state.session.user.id, name: template.name, description: template.description }).select().single();
-  if (error) { toast('Nem sikerült menteni a tervet.'); return; }
-  const rows = [];
-  let order = 0;
-  template.days.forEach(d => {
-    d.items.forEach(it => {
-      const ex = findExerciseByName(it[0]);
-      if (!ex) return;
-      rows.push({ plan_id: plan.id, user_id: state.session.user.id, day_label: d.day_label, exercise_id: ex.id, target_sets: it[1], target_reps: String(it[2]), order_index: order++ });
-    });
-  });
-  if (rows.length) await sb.from('training_plan_items').insert(rows);
-  toast('Terv elmentve a sajátjaid közé ✅');
-  renderPlans();
-}
-
-/* ---------- plan editor ---------- */
-function openPlanEditor(existingPlan){
-  if (existingPlan) {
-    const days = {};
-    (existingPlan.training_plan_items||[]).sort((a,b)=>a.order_index-b.order_index).forEach(it => {
-      (days[it.day_label] ||= []).push({ exerciseId: it.exercise_id, exerciseName: exerciseName(it.exercise_id), target_sets: it.target_sets, target_reps: it.target_reps });
-    });
-    planDraft = { editingPlanId: existingPlan.id, name: existingPlan.name, description: existingPlan.description || '', days: Object.keys(days).map(dl => ({ day_label: dl, items: days[dl] })) };
-  } else {
-    planDraft = { editingPlanId: null, name: '', description: '', days: [{ day_label:'Nap 1', items: [] }] };
-  }
-  renderPlanEditor();
-}
-
-function renderPlanEditor(){
-  const content = $('#content');
-  content.innerHTML = `
-    <div class="back-row"><button class="back-btn" id="peBack">←</button><div class="back-title">${planDraft.editingPlanId ? 'Terv szerkesztése' : 'Új terv'}</div></div>
-    <div class="field"><label>Terv neve</label><input type="text" id="peName" value="${planDraft.name}" placeholder="pl. Nyári forma program"></div>
-    <div class="field"><label>Leírás — opcionális</label><textarea id="peDesc">${planDraft.description}</textarea></div>
-    <div class="section-title">Napok</div>
-    <div id="peDays"></div>
-    <button class="btn-outline" id="peAddDay">+ Nap hozzáadása</button>
-    <button class="btn-primary" id="peSave" style="margin-top:20px;">Terv mentése</button>
-  `;
-  $('#peBack').onclick = () => switchView('plans');
-  $('#peName').oninput = e => planDraft.name = e.target.value;
-  $('#peDesc').oninput = e => planDraft.description = e.target.value;
-  $('#peAddDay').onclick = () => { planDraft.days.push({ day_label:'Nap ' + (planDraft.days.length+1), items:[] }); renderPeDays(); };
-  renderPeDays();
-  $('#peSave').onclick = savePlan;
-}
-
-function renderPeDays(){
-  const wrap = $('#peDays'); wrap.innerHTML = '';
-  planDraft.days.forEach((day, dIdx) => {
-    const el = document.createElement('div'); el.className='day-editor';
-    el.innerHTML = `
-      <input class="daylabel" data-daylabel="${dIdx}" value="${day.day_label}">
-      <div class="items-of-day" data-items="${dIdx}"></div>
-      <div class="row-gap">
-        <button class="btn-outline-sm" data-addit="${dIdx}">+ Gyakorlat</button>
-        ${planDraft.days.length > 1 ? `<button class="btn-danger-sm" data-rmday="${dIdx}">Nap törlése</button>` : ''}
-      </div>
-    `;
-    wrap.appendChild(el);
-    renderPeItems(dIdx);
-  });
-  wrap.querySelectorAll('[data-daylabel]').forEach(inp => { inp.oninput = () => { planDraft.days[parseInt(inp.dataset.daylabel)].day_label = inp.value; }; });
-  wrap.querySelectorAll('[data-addit]').forEach(btn => {
-    btn.onclick = () => openExercisePicker(renderPlanEditor, (ex) => {
-      planDraft.days[parseInt(btn.dataset.addit)].items.push({ exerciseId: ex.id, exerciseName: ex.name, target_sets:3, target_reps:'8-12' });
-      renderPlanEditor();
-    });
-  });
-  wrap.querySelectorAll('[data-rmday]').forEach(btn => { btn.onclick = () => { planDraft.days.splice(parseInt(btn.dataset.rmday),1); renderPeDays(); }; });
-}
-
-function renderPeItems(dIdx){
-  const container = $(`.items-of-day[data-items="${dIdx}"]`);
-  const day = planDraft.days[dIdx];
-  container.innerHTML = '';
-  day.items.forEach((it, iIdx) => {
-    const row = document.createElement('div'); row.className='plan-item-row';
-    row.innerHTML = `
-      <span class="piname">${it.exerciseName}</span>
-      <input type="number" data-ps="${dIdx}:${iIdx}" value="${it.target_sets}" title="szett">
-      <input type="text" class="reps" data-pr="${dIdx}:${iIdx}" value="${it.target_reps}" title="ismétlés">
-      <button class="rmpi" data-rmpi="${dIdx}:${iIdx}">×</button>
-    `;
-    container.appendChild(row);
-  });
-  container.querySelectorAll('[data-ps]').forEach(inp => { inp.oninput = () => { const [d,i]=inp.dataset.ps.split(':').map(Number); planDraft.days[d].items[i].target_sets = parseInt(inp.value)||1; }; });
-  container.querySelectorAll('[data-pr]').forEach(inp => { inp.oninput = () => { const [d,i]=inp.dataset.pr.split(':').map(Number); planDraft.days[d].items[i].target_reps = inp.value; }; });
-  container.querySelectorAll('[data-rmpi]').forEach(btn => { btn.onclick = () => { const [d,i]=btn.dataset.rmpi.split(':').map(Number); planDraft.days[d].items.splice(i,1); renderPeItems(d); }; });
-}
-
-async function savePlan(){
-  if (!planDraft.name.trim()) { toast('Adj nevet a tervnek.'); return; }
-  const anyItems = planDraft.days.some(d => d.items.length);
-  if (!anyItems) { toast('Adj hozzá legalább egy gyakorlatot valamelyik naphoz.'); return; }
-  $('#peSave').disabled = true; $('#peSave').textContent = 'Mentés…';
-  try {
-    let planId = planDraft.editingPlanId;
-    if (planId) {
-      await sb.from('training_plans').update({ name: planDraft.name, description: planDraft.description || null }).eq('id', planId);
-      await sb.from('training_plan_items').delete().eq('plan_id', planId);
-    } else {
-      const { data, error } = await sb.from('training_plans').insert({ user_id: state.session.user.id, name: planDraft.name, description: planDraft.description || null }).select().single();
-      if (error) throw error;
-      planId = data.id;
-    }
-    const rows = [];
-    let order = 0;
-    planDraft.days.forEach(d => { d.items.forEach(it => { rows.push({ plan_id: planId, user_id: state.session.user.id, day_label: d.day_label, exercise_id: it.exerciseId, target_sets: it.target_sets, target_reps: it.target_reps, order_index: order++ }); }); });
-    if (rows.length) { const { error: itErr } = await sb.from('training_plan_items').insert(rows); if (itErr) throw itErr; }
-    toast('Terv elmentve ✅');
-    switchView('plans');
-  } catch (e) {
-    toast('Hiba: ' + (e.message || 'ismeretlen hiba'));
-    $('#peSave').disabled = false; $('#peSave').textContent = 'Terv mentése';
-  }
-}
-
-/* =========================================================
-   PROFIL + testsúly gyorsnapló
-   ========================================================= */
-async function renderProfile(){
-  const content = $('#content');
-  const email = state.session?.user?.email || '';
-  content.innerHTML = `
-    <div class="card profile-card">
-      <div class="avatar">${email.charAt(0).toUpperCase()}</div>
-      <div><div class="profile-email">${email}</div><div class="profile-sub">GymTrack tag</div></div>
-    </div>
-    <div class="section-title">Testsúly gyorsnapló</div>
+    <div id="bwLatestBox"></div>
+    <div class="section-title">Új mérés</div>
     <div class="card">
       <div class="field"><label>Dátum</label><input type="date" id="bwDate" value="${todayInputDate()}"></div>
-      <div class="field"><label>Testsúly (kg)</label><input type="number" step="0.1" id="bwWeight" placeholder="pl. 82.4"></div>
+      <div class="field"><label>Testsúly (kg)</label><input type="number" inputmode="decimal" step="0.1" id="bwWeight" placeholder="pl. 82.4"></div>
       <button class="btn-primary" id="bwSave">Mentés</button>
     </div>
-    <div class="section-title">Legutóbbi mérések</div>
+    <div class="section-title">Korábbi mérések</div>
     <div class="card" id="bwList">Betöltés…</div>
-    <button class="btn-danger" id="signOutBtn">Kijelentkezés</button>
   `;
   $('#bwSave').onclick = async () => {
     const d = $('#bwDate').value; const w = parseFloat($('#bwWeight').value);
@@ -1006,18 +643,37 @@ async function renderProfile(){
     $('#bwWeight').value = '';
     loadBwList();
   };
-  $('#signOutBtn').onclick = async () => { await sb.auth.signOut(); };
   loadBwList();
 }
 
 async function loadBwList(){
-  const box = $('#bwList'); if (!box) return;
-  const { data } = await sb.from('body_weight_logs').select('*').eq('user_id', state.session.user.id).order('log_date', { ascending:false }).limit(10);
+  const box = $('#bwList'); const latestBox = $('#bwLatestBox');
+  if (!box) return;
+  const { data } = await sb.from('body_weight_logs').select('*').eq('user_id', state.session.user.id).order('log_date', { ascending:false }).limit(20);
+  if (latestBox) {
+    if (data && data.length) {
+      latestBox.innerHTML = `
+        <div class="card">
+          <div class="bw-latest-lbl">Legutóbbi mérés — ${fmtDate(data[0].log_date)}</div>
+          <div class="bw-latest"><span class="num">${data[0].weight_kg}</span><span class="unit">kg</span></div>
+        </div>`;
+    } else {
+      latestBox.innerHTML = '';
+    }
+  }
   if (!data || !data.length) { box.innerHTML = `<p style="color:var(--mist); font-size:13px;">Még nincs rögzített mérés.</p>`; return; }
   box.innerHTML = '';
-  data.forEach(row => {
+  data.forEach((row, i) => {
+    const prev = data[i+1]; // egy nappal korábbi (a lista dátum szerint csökkenő)
+    let deltaHtml = '';
+    if (prev) {
+      const diff = Math.round((row.weight_kg - prev.weight_kg) * 10) / 10;
+      const cls = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
+      const sign = diff > 0 ? '+' : '';
+      deltaHtml = `<span class="bw-delta ${cls}">${sign}${diff} kg</span>`;
+    }
     const line = document.createElement('div'); line.className='bw-entry-line';
-    line.innerHTML = `<span>${fmtDate(row.log_date)}</span><span class="mono">${row.weight_kg} kg</span><button class="del" data-bwdel="${row.id}">✕</button>`;
+    line.innerHTML = `<span class="bwdate">${fmtDate(row.log_date)}</span><div class="bwright">${deltaHtml}<span class="bwval mono">${row.weight_kg} kg</span><button class="del" data-bwdel="${row.id}">✕</button></div>`;
     box.appendChild(line);
   });
   box.querySelectorAll('[data-bwdel]').forEach(btn => {
