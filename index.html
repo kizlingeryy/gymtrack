@@ -52,6 +52,8 @@
   .field input, .field textarea, .field select{width:100%; padding:14px 16px; border-radius:var(--radius-sm); background:var(--surface); border:1px solid var(--border); color:#fff;}
   .field textarea{resize:vertical; min-height:60px;}
   .field input:focus, .field textarea:focus, .field select:focus{outline:2px solid var(--amethyst); outline-offset:1px; border-color:var(--amethyst);}
+  .field.small{margin-bottom:14px;}
+  .field.small label{margin-bottom:5px; font-size:11.5px;}
   .btn-primary{width:100%; padding:16px; border:none; border-radius:var(--radius-sm); background:var(--grad); color:#fff; font-weight:700; font-size:15.5px; margin-top:6px; box-shadow:0 8px 24px -8px rgba(139,92,246,.6); min-height:50px;}
   .btn-primary:active{transform:scale(.98);}
   .btn-primary:disabled{opacity:.5;}
@@ -81,6 +83,9 @@
   .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px;}
   .section-title{font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--mist-dim); font-weight:700; margin:22px 0 10px; padding-left:2px;}
   .section-title:first-child{margin-top:0;}
+  .section-title-row{display:flex; justify-content:space-between; align-items:baseline; margin:22px 0 10px; padding-left:2px;}
+  .section-title-row .section-title{margin:0; padding-left:0;}
+  .ef-summary{font-size:11.5px; color:var(--ultraviolet); font-weight:700;}
   .stat-row{display:flex; gap:10px; margin-bottom:6px;}
   .stat{flex:1; background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:14px;}
   .stat .num{font-family:'Bebas Neue',sans-serif; font-size:26px; color:var(--ultraviolet);}
@@ -113,20 +118,39 @@
   .hist-actions{display:flex; gap:8px; margin-top:16px;}
 
   /* ---------- ENTRY FORM (a fő funkció) ---------- */
-  .ex-block{background:var(--surface-2); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:14px;}
-  .ex-block-head{display:flex; justify-content:space-between; align-items:flex-start;}
+  .ef-toprow{display:grid; grid-template-columns:1fr 1.3fr; gap:10px;}
+  .recent-lbl{font-size:11px; color:var(--mist-dim); font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:8px; padding-left:2px;}
+  .recent-chip-row{display:flex; gap:8px; overflow-x:auto; padding:2px 2px 12px; margin:-2px -2px 0;}
+  .recent-chip{flex-shrink:0; background:var(--surface); border:1px solid var(--border); color:var(--mist); font-size:12.5px; font-weight:600; padding:9px 14px; border-radius:20px; white-space:nowrap;}
+  .recent-chip:active{background:var(--surface-2);}
+
+  .ex-block{background:var(--surface-2); border:1px solid var(--border); border-radius:16px; padding:16px; margin-bottom:14px; border-left-width:3px; border-left-style:solid;}
+  .ex-block-head{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .ex-block-titlewrap{flex:1; min-width:0;}
+  .exname-row{display:flex; align-items:center; gap:8px; flex-wrap:wrap;}
   .ex-block-head .exname{font-weight:700; font-size:15.5px;}
-  .ex-block-head .extarget{font-size:11.5px; color:var(--gold); margin-top:3px;}
-  .ex-block-head .ghost{font-size:11.5px; color:var(--mist-dim); margin-top:3px; font-family:'JetBrains Mono',monospace; line-height:1.4;}
+  .mg-tag{font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:.03em; padding:3px 7px; border-radius:6px; flex-shrink:0;}
+  .ghost-actions{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:9px;}
+  .ghost-chip{background:rgba(139,92,246,.1); border:1px solid rgba(139,92,246,.25); color:var(--mist); font-size:11px; padding:6px 10px; border-radius:10px; font-family:'JetBrains Mono',monospace; line-height:1.4;}
+  .ghost-loading{color:var(--mist-dim); font-size:11px; font-style:italic;}
+  .copy-last-btn{background:var(--surface-3); color:var(--ultraviolet); border:1px solid var(--amethyst-dim); border-radius:10px; padding:6px 10px; font-size:11px; font-weight:700;}
+  .copy-last-btn:active{transform:scale(.97);}
   .rm-block{background:none; border:none; color:var(--mist-dim); font-size:20px; padding:2px 6px; min-width:32px; min-height:32px;}
-  .set-row{display:flex; align-items:center; gap:8px; margin-top:10px;}
-  .set-row .set-num{width:24px; height:24px; border-radius:7px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--mist); flex-shrink:0;}
-  .set-row input{width:0; flex:1; text-align:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:17px; padding:12px 4px; border-radius:11px; background:var(--surface); border:1px solid var(--border); color:#fff;}
+
+  .set-col-header{display:grid; grid-template-columns:26px 1fr 14px 1fr 30px; gap:8px; padding:0; font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--mist-dim); font-weight:700; text-align:center; margin-top:14px;}
+  .set-row{display:grid; grid-template-columns:26px 1fr 14px 1fr 30px; align-items:center; gap:8px; margin-top:8px;}
+  .set-row .set-num{width:24px; height:24px; border-radius:7px; background:var(--surface-3); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:var(--mist); justify-self:center;}
+  .input-wrap{position:relative;}
+  .set-row input{width:100%; text-align:center; font-family:'JetBrains Mono',monospace; font-weight:700; font-size:17px; padding:12px 4px; border-radius:11px; background:var(--surface); border:1px solid var(--border); color:#fff;}
   .set-row input:focus{outline:2px solid var(--amethyst); outline-offset:0; border-color:var(--amethyst);}
-  .set-row .x{color:var(--mist-dim); font-size:13px; flex-shrink:0;}
-  .set-row .pr-tag{background:var(--gold); color:#241a02; font-size:9.5px; font-weight:800; padding:4px 6px; border-radius:6px; display:none; flex-shrink:0;}
-  .set-row .rm-set{background:none; border:none; color:var(--mist-dim); font-size:19px; flex-shrink:0; width:30px; height:30px;}
+  .set-row .x{color:var(--mist-dim); font-size:13px; text-align:center;}
+  .set-row .pr-tag{position:absolute; top:-8px; right:-5px; background:var(--gold); color:#241a02; font-size:9px; font-weight:800; padding:3px 5px; border-radius:6px; display:none; box-shadow:0 2px 6px rgba(0,0,0,.35); letter-spacing:.02em;}
+  .set-row .rm-set{background:none; border:none; color:var(--mist-dim); font-size:19px; width:30px; height:30px; justify-self:center;}
   .add-set-link{margin-top:12px; background:none; border:none; color:var(--ultraviolet); font-size:13px; font-weight:700; padding:6px 0; min-height:32px;}
+
+  .extra-toggle{background:none; border:1px dashed var(--border); color:var(--mist); font-size:12.5px; font-weight:600; padding:12px 14px; border-radius:12px; width:100%; text-align:center; margin-top:2px; min-height:46px;}
+  .extra-fields{margin-top:14px;}
+  .extra-fields.hidden{display:none;}
 
   /* ---------- picker ---------- */
   .search-box{width:100%; padding:14px 16px; border-radius:14px; background:var(--surface); border:1px solid var(--border); color:#fff; margin-bottom:6px;}
@@ -218,7 +242,9 @@ else { document.getElementById('configWarning').classList.remove('hidden'); }
 
 /* ---------- state ---------- */
 let state = { session:null, exercises:[] };
-let entryDraft = null; // { editingWorkoutId, date, name, notes, bodyweight, blocks:[{exerciseId,exerciseName,targetLabel,ghostText,ghostBest,sets:[{weight,reps}]}] }
+// entryDraft: { editingWorkoutId, date, name, notes, bodyweight, extraOpen, recentPool,
+//               blocks:[{exerciseId,exerciseName,muscleGroup,ghostText,ghostBest,lastSets,sets:[{weight,reps}]}] }
+let entryDraft = null;
 
 /* ---------- helpers ---------- */
 const $ = (s, el=document) => el.querySelector(s);
@@ -230,6 +256,13 @@ function todayLabel(){ return new Date().toLocaleDateString('hu-HU',{weekday:'lo
 function todayInputDate(){ return new Date().toISOString().slice(0,10); }
 function dateToTimestamp(dateStr){ return new Date(dateStr + 'T12:00:00').toISOString(); }
 function exerciseName(id){ const e = state.exercises.find(x=>x.id===id); return e ? e.name : 'Gyakorlat'; }
+function exerciseMuscleGroup(id){ const e = state.exercises.find(x=>x.id===id); return e ? e.muscle_group : 'Egyéb'; }
+const MG_PALETTE = ['#8B5CF6','#F0B429','#34D399','#38BDF8','#F2607A','#FB923C','#A3E635','#F472B6','#C084FC'];
+function mgColor(mg){
+  const key = mg || 'Egyéb';
+  let hash = 0; for (let i=0;i<key.length;i++) hash = (hash*31 + key.charCodeAt(i)) >>> 0;
+  return MG_PALETTE[hash % MG_PALETTE.length];
+}
 
 /* =========================================================
    AUTH
@@ -442,44 +475,96 @@ function openEntryForm(existingWorkout){
       name: existingWorkout.name,
       notes: existingWorkout.notes || '',
       bodyweight: '',
+      extraOpen: !!(existingWorkout.notes),
+      recentPool: [],
       blocks: Object.keys(byExercise).map(exId => ({
-        exerciseId: exId, exerciseName: exerciseName(exId), targetLabel:'', ghostText:'', ghostBest:0,
-        sets: byExercise[exId]
+        exerciseId: exId, exerciseName: exerciseName(exId), muscleGroup: exerciseMuscleGroup(exId),
+        ghostText:'', ghostBest:0, lastSets:null, sets: byExercise[exId]
       }))
     };
   } else {
-    entryDraft = { editingWorkoutId:null, date: todayInputDate(), name:'Edzés', notes:'', bodyweight:'', blocks: [] };
+    entryDraft = { editingWorkoutId:null, date: todayInputDate(), name:'Edzés', notes:'', bodyweight:'', extraOpen:false, recentPool:[], blocks: [] };
   }
   renderEntryForm();
   entryDraft.blocks.forEach((b, i) => loadGhostForBlock(i));
+  loadRecentPool();
 }
 
 function renderEntryForm(){
   const content = $('#content');
   content.innerHTML = `
     <div class="back-row"><button class="back-btn" id="efBack">←</button><div class="back-title">${entryDraft.editingWorkoutId ? 'Bejegyzés szerkesztése' : 'Új bejegyzés'}</div></div>
-    <div class="field"><label>Dátum</label><input type="date" id="efDate" value="${entryDraft.date}"></div>
-    <div class="field"><label>Edzés neve</label><input type="text" id="efName" value="${entryDraft.name}"></div>
-    <div class="section-title">Gyakorlatok</div>
+    <div class="ef-toprow">
+      <div class="field small"><label>Dátum</label><input type="date" id="efDate" value="${entryDraft.date}"></div>
+      <div class="field small"><label>Edzés neve</label><input type="text" id="efName" value="${entryDraft.name}"></div>
+    </div>
+    <div class="section-title-row"><div class="section-title">Gyakorlatok</div><span id="efSummary" class="ef-summary"></span></div>
+    <div id="efRecentChips"></div>
     <div id="efBlocks"></div>
     <button class="btn-outline" id="efAddEx">+ Gyakorlat hozzáadása</button>
     <div class="section-title">Extra</div>
-    <div class="field"><label>Testsúlyod ma (kg) — opcionális</label><input type="number" inputmode="decimal" step="0.1" id="efBw" placeholder="pl. 82.4" value="${entryDraft.bodyweight}"></div>
-    <div class="field"><label>Jegyzet — opcionális</label><textarea id="efNotes">${entryDraft.notes}</textarea></div>
-    <button class="btn-primary" id="efSave">Mentés</button>
+    <button class="extra-toggle" id="efExtraToggle">${entryDraft.extraOpen ? '− Testsúly / jegyzet elrejtése' : '+ Testsúly / jegyzet hozzáadása'}</button>
+    <div class="extra-fields ${entryDraft.extraOpen ? '' : 'hidden'}" id="efExtraFields">
+      <div class="field"><label>Testsúlyod ma (kg) — opcionális</label><input type="number" inputmode="decimal" step="0.1" id="efBw" placeholder="pl. 82.4" value="${entryDraft.bodyweight}"></div>
+      <div class="field"><label>Jegyzet — opcionális</label><textarea id="efNotes">${entryDraft.notes}</textarea></div>
+    </div>
+    <button class="btn-primary" id="efSave" style="margin-top:20px;">Mentés</button>
   `;
   $('#efBack').onclick = () => switchView('log');
   $('#efDate').oninput = e => entryDraft.date = e.target.value;
   $('#efName').oninput = e => entryDraft.name = e.target.value;
   $('#efBw').oninput = e => entryDraft.bodyweight = e.target.value;
   $('#efNotes').oninput = e => entryDraft.notes = e.target.value;
-  $('#efAddEx').onclick = () => openExercisePicker(renderEntryForm, (ex) => {
-    entryDraft.blocks.push({ exerciseId: ex.id, exerciseName: ex.name, targetLabel:'', ghostText:'', ghostBest:0, sets:[{weight:'',reps:''}] });
-    renderEntryForm();
-    loadGhostForBlock(entryDraft.blocks.length - 1);
-  });
+  $('#efExtraToggle').onclick = () => {
+    entryDraft.extraOpen = !entryDraft.extraOpen;
+    $('#efExtraFields').classList.toggle('hidden', !entryDraft.extraOpen);
+    $('#efExtraToggle').textContent = entryDraft.extraOpen ? '− Testsúly / jegyzet elrejtése' : '+ Testsúly / jegyzet hozzáadása';
+  };
+  $('#efAddEx').onclick = () => openExercisePicker(renderEntryForm, addExerciseBlock);
   renderEfBlocks();
+  renderRecentChips();
   $('#efSave').onclick = saveEntry;
+}
+
+function addExerciseBlock(ex){
+  entryDraft.blocks.push({ exerciseId: ex.id, exerciseName: ex.name, muscleGroup: ex.muscle_group, ghostText:'', ghostBest:0, lastSets:null, sets:[{weight:'',reps:''}] });
+  renderEntryForm();
+  loadGhostForBlock(entryDraft.blocks.length - 1);
+}
+
+async function loadRecentPool(){
+  const { data } = await sb.from('workout_sets').select('exercise_id,created_at').eq('user_id', state.session.user.id).order('created_at', { ascending:false }).limit(60);
+  if (!entryDraft) return;
+  const seen = new Set(); const pool = [];
+  (data||[]).forEach(row => {
+    if (seen.has(row.exercise_id) || pool.length >= 8) return;
+    seen.add(row.exercise_id);
+    const ex = state.exercises.find(e => e.id === row.exercise_id);
+    if (ex) pool.push(ex);
+  });
+  entryDraft.recentPool = pool;
+  renderRecentChips();
+}
+
+function renderRecentChips(){
+  const box = $('#efRecentChips'); if (!box || !entryDraft) return;
+  const usedIds = new Set(entryDraft.blocks.map(b => b.exerciseId));
+  const items = (entryDraft.recentPool || []).filter(ex => !usedIds.has(ex.id));
+  if (!items.length) { box.innerHTML = ''; return; }
+  box.innerHTML = `<div class="recent-lbl">Gyors hozzáadás</div><div class="recent-chip-row">${items.map(ex => `<button class="recent-chip" data-quickadd="${ex.id}">+ ${ex.name}</button>`).join('')}</div>`;
+  box.querySelectorAll('[data-quickadd]').forEach(btn => {
+    btn.onclick = () => { const ex = state.exercises.find(e => e.id === btn.dataset.quickadd); if (ex) addExerciseBlock(ex); };
+  });
+}
+
+function ghostActionsHtml(bIdx){
+  const block = entryDraft.blocks[bIdx];
+  if (!block.ghostText) return '<span class="ghost-loading">Előzmény betöltése…</span>';
+  let html = `<span class="ghost-chip">${block.ghostText}</span>`;
+  if (block.lastSets && block.lastSets.length) {
+    html += `<button class="copy-last-btn" data-copylast="${bIdx}">⚡ Ugyanaz mint legutóbb</button>`;
+  }
+  return html;
 }
 
 function renderEfBlocks(){
@@ -487,20 +572,25 @@ function renderEfBlocks(){
   if (!wrap) return;
   wrap.innerHTML = '';
   if (!entryDraft.blocks.length) {
-    wrap.innerHTML = `<p style="color:var(--mist); font-size:13px; padding:6px 2px;">Adj hozzá legalább egy gyakorlatot.</p>`;
+    wrap.innerHTML = `<p style="color:var(--mist); font-size:13px; padding:6px 2px 4px;">Adj hozzá legalább egy gyakorlatot.</p>`;
+    updateEfSummary();
     return;
   }
   entryDraft.blocks.forEach((block, bIdx) => {
     const el = document.createElement('div'); el.className='ex-block'; el.dataset.block = bIdx;
+    el.style.borderLeftColor = mgColor(block.muscleGroup);
     el.innerHTML = `
       <div class="ex-block-head">
-        <div>
-          <div class="exname">${block.exerciseName}</div>
-          ${block.targetLabel ? `<div class="extarget">${block.targetLabel}</div>` : ''}
-          <div class="ghost" id="ghost-${bIdx}">${block.ghostText}</div>
+        <div class="ex-block-titlewrap">
+          <div class="exname-row">
+            <span class="exname">${block.exerciseName}</span>
+            <span class="mg-tag" style="background:${mgColor(block.muscleGroup)}22; color:${mgColor(block.muscleGroup)};">${block.muscleGroup || 'Egyéb'}</span>
+          </div>
+          <div class="ghost-actions" id="ghostActions-${bIdx}">${ghostActionsHtml(bIdx)}</div>
         </div>
         <button class="rm-block" data-rm-block="${bIdx}">×</button>
       </div>
+      <div class="set-col-header"><span></span><span>KG</span><span></span><span>ISM</span><span></span></div>
       <div class="sets-of-block" data-sets="${bIdx}"></div>
       <button class="add-set-link" data-add-set="${bIdx}">+ szett hozzáadása</button>
     `;
@@ -509,11 +599,15 @@ function renderEfBlocks(){
   });
 
   wrap.querySelectorAll('[data-rm-block]').forEach(btn => {
-    btn.onclick = () => { entryDraft.blocks.splice(parseInt(btn.dataset.rmBlock),1); renderEfBlocks(); };
+    btn.onclick = () => { entryDraft.blocks.splice(parseInt(btn.dataset.rmBlock),1); renderEfBlocks(); renderRecentChips(); };
   });
   wrap.querySelectorAll('[data-add-set]').forEach(btn => {
     btn.onclick = () => { const b = parseInt(btn.dataset.addSet); entryDraft.blocks[b].sets.push({weight:'',reps:''}); renderSetRows(b); };
   });
+  wrap.querySelectorAll('[data-copylast]').forEach(btn => {
+    btn.onclick = () => copyLastSets(parseInt(btn.dataset.copylast));
+  });
+  updateEfSummary();
 }
 
 function renderSetRows(bIdx){
@@ -525,10 +619,12 @@ function renderSetRows(bIdx){
     const row = document.createElement('div'); row.className='set-row';
     row.innerHTML = `
       <div class="set-num">${sIdx+1}</div>
-      <input type="number" inputmode="decimal" step="0.5" placeholder="kg" value="${s.weight}" data-w="${bIdx}:${sIdx}">
+      <div class="input-wrap">
+        <input type="number" inputmode="decimal" step="0.5" placeholder="kg" value="${s.weight}" data-w="${bIdx}:${sIdx}">
+        <span class="pr-tag" data-pr="${bIdx}:${sIdx}" style="display:${(parseFloat(s.weight)||0) > block.ghostBest ? 'inline-block':'none'}">PR</span>
+      </div>
       <span class="x">×</span>
       <input type="number" inputmode="numeric" placeholder="ism." value="${s.reps}" data-r="${bIdx}:${sIdx}">
-      <span class="pr-tag" data-pr="${bIdx}:${sIdx}" style="display:${(parseFloat(s.weight)||0) > block.ghostBest ? 'inline-block':'none'}">PR</span>
       <button class="rm-set" data-rmset="${bIdx}:${sIdx}">×</button>
     `;
     container.appendChild(row);
@@ -547,6 +643,24 @@ function renderSetRows(bIdx){
   container.querySelectorAll('[data-rmset]').forEach(btn => {
     btn.onclick = () => { const [b,s] = btn.dataset.rmset.split(':').map(Number); entryDraft.blocks[b].sets.splice(s,1); renderSetRows(b); };
   });
+  updateEfSummary();
+}
+
+function copyLastSets(bIdx){
+  const block = entryDraft.blocks[bIdx];
+  if (!block || !block.lastSets || !block.lastSets.length) return;
+  const hasData = block.sets.some(s => s.weight !== '' || s.reps !== '');
+  if (hasData && !confirm('Ez felülírja a már beírt szetteket ennél a gyakorlatnál. Folytatod?')) return;
+  block.sets = block.lastSets.map(s => ({ weight: s.weight, reps: s.reps }));
+  renderSetRows(bIdx);
+  toast('Kitöltve a legutóbbi adatokkal — még módosíthatod.');
+}
+
+function updateEfSummary(){
+  const el = $('#efSummary'); if (!el || !entryDraft) return;
+  const exCount = entryDraft.blocks.length;
+  const setCount = entryDraft.blocks.reduce((s,b) => s + b.sets.length, 0);
+  el.textContent = exCount ? `${exCount} gyakorlat · ${setCount} szett` : '';
 }
 
 async function loadGhostForBlock(bIdx){
@@ -557,12 +671,17 @@ async function loadGhostForBlock(bIdx){
   if (ghost && ghost.sets.length) {
     entryDraft.blocks[bIdx].ghostText = `👻 Múltkor (${fmtDateShort(ghost.date)}): ${ghost.sets.map(s=>`${s.weight}kg×${s.reps}`).join(', ')}`;
     entryDraft.blocks[bIdx].ghostBest = Math.max(...ghost.sets.map(s=>s.weight));
+    entryDraft.blocks[bIdx].lastSets = ghost.sets.map(s => ({ weight:String(s.weight), reps:String(s.reps) }));
   } else {
     entryDraft.blocks[bIdx].ghostText = 'Ez az első alkalom, hogy ezt naplózod.';
     entryDraft.blocks[bIdx].ghostBest = 0;
+    entryDraft.blocks[bIdx].lastSets = null;
   }
-  const g = $(`#ghost-${bIdx}`);
-  if (g) g.textContent = entryDraft.blocks[bIdx].ghostText;
+  const box = $(`#ghostActions-${bIdx}`);
+  if (box) {
+    box.innerHTML = ghostActionsHtml(bIdx);
+    box.querySelectorAll('[data-copylast]').forEach(btn => { btn.onclick = () => copyLastSets(parseInt(btn.dataset.copylast)); });
+  }
 }
 
 async function getLastPerformance(exerciseId, excludeWorkoutId){
@@ -664,7 +783,7 @@ async function loadBwList(){
   if (!data || !data.length) { box.innerHTML = `<p style="color:var(--mist); font-size:13px;">Még nincs rögzített mérés.</p>`; return; }
   box.innerHTML = '';
   data.forEach((row, i) => {
-    const prev = data[i+1]; // egy nappal korábbi (a lista dátum szerint csökkenő)
+    const prev = data[i+1]; // egy méréssel korábbi (a lista dátum szerint csökkenő)
     let deltaHtml = '';
     if (prev) {
       const diff = Math.round((row.weight_kg - prev.weight_kg) * 10) / 10;
